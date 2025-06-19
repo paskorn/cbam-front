@@ -1,4 +1,4 @@
-// MyButton.tsx
+// SectionButton.tsx
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
@@ -7,7 +7,7 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
   width: '150px',
   height: '50px',
   fontSize: '18px',
-  backgroundColor: '#a5d6a7', // pale green
+  backgroundColor: '#a5d6a7',
   color: '#fff',
   marginLeft: 'auto',
   borderRadius: '20px',
@@ -15,14 +15,30 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
     backgroundColor: '#81c784',
   },
   [theme.breakpoints.down('sm')]: {
-    // width: '100%',
     height: '50px',
     fontSize: '10px',
   },
 }));
 
-const PGButton = () => {
-  return <PaleGreenButton type="submit">submit</PaleGreenButton>;
+const SectionButton = ({
+  onValidate,
+  onSuccess,
+}: {
+  onValidate: () => boolean;
+  onSuccess: () => void;
+}) => {
+  const handleClick = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (onValidate()) {
+      onSuccess();
+    }
+  };
+
+  return (
+    <PaleGreenButton type="submit" onClick={handleClick}>
+      Next
+    </PaleGreenButton>
+  );
 };
 
-export default PGButton;
+export default SectionButton;

@@ -9,10 +9,13 @@ import {
   Typography,
 } from '@mui/material';
 
-import TableDashboard from '../dashboard/TableDashboard';
-import SumupForm from '../dashboard/SumupForm';
+import InstallationForm from '../forms/installationForm';
+import VerifierForm from '../forms/VerifierForm';
+import GoodsForm from '../forms/GoodsForm';
+import PrecursorsForm from '../forms/PrecursorsForm';
+import AmountForm from '../forms/AmountForm';
 
-const steps = ['CBAM Dashboard', 'Sumup Form'];
+const steps = ['Installation', 'Verifier', 'Goods', 'Precursors', 'Amount'];
 
 const Form: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -33,9 +36,15 @@ const Form: React.FC = () => {
   const renderStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return <TableDashboard/>;
+        return <InstallationForm />;
       case 1:
-        return <SumupForm />;
+        return <VerifierForm />;
+      case 2:
+        return <GoodsForm />;
+      case 3:
+        return <PrecursorsForm />;
+      case 4:
+        return <AmountForm />;
       default:
         return <Typography>Unknown step</Typography>;
     }

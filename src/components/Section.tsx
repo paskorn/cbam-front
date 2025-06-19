@@ -35,7 +35,7 @@ const Section: React.FC<SectionProps> = ({
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <div>
-          <Typography variant="h6" color={hasError ? 'error' : 'inherit'}>
+          <Typography variant="h6" color={hasError ? 'error' : 'success'}>
             {title}
           </Typography>
           {subtitle && (

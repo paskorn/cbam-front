@@ -169,8 +169,9 @@ import React from 'react';
 import { ThemeProvider, createTheme, CssBaseline, Container } from '@mui/material';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Import necessary routing components
 import Header from './components/Header'; // Import the Header component
-import Installation from './pages/Installation'; // Import the Installation page
-import Verifier from './pages/Verifier';
+import Dashboard from './pages/Dashboard';
+import NavigationProp from './components/NavigationProp';
+import Form from './pages/Form'; // Import the Form page
 
 const theme = createTheme({
   typography: {
@@ -198,6 +199,7 @@ function App() {
               companyName="บริษัท เอบีซี จำกัด" // Company name or logo
               userStatus="Welcome!" // Static welcome message
             />
+            <NavigationProp>
             <div style={{
               background: 'white',
               borderRadius: '8px',
@@ -205,13 +207,25 @@ function App() {
               minHeight: '400px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}>
+              
               <Routes>
                 {/* <Route path="/" element={<Installation />} /> Default route to Installation page */}
-                <Route path="/installation" element={<Installation />} />  
-                <Route path="/Verifier" element={<Verifier/>} />  
+                {/* <Route path="/installation" element={<Installation />} />   */}
+                {/* <Route path="/Verifier" element={<Verifier/>} /> 
+                <Route path="/Dashboard" element={<Dashboard/>} /> 
+                <Route path="/Goods" element={<Goods/>} />  */}
+                <Route path="/Home" element={<Dashboard/>} />  
+                <Route path="/Form" element={<Form/>} />  
+                <Route path="/Report" element={<Dashboard/>} />  
+              
+
+
+
                 {/* Feel free to add more routes here */}
               </Routes>
+              
             </div>
+            </NavigationProp>
           </Container>
         </div>
       </Router>

@@ -1,34 +1,46 @@
 // components/LabeledTextField.tsx
 import React from "react";
 import { TextField, Typography } from "@mui/material";
-
 interface Props {
   label: string;
   caption?: string;
-  // defination?: string;
+  defination?: string;
   name: string;
   type?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
-  readOnly?: boolean
+  readOnly?: boolean;
   helperText?: string;
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; // add this line
 }
 
 const LabeledTextField: React.FC<Props> = ({
   label,
   caption,
+  helperText,
+  defination,
   name,
   value,
   onChange,
   error,
   type = "text",
   readOnly = false,
+  inputProps, // add here
 }) => (
   <>
     {caption && (
-      <Typography variant="caption" color="textSecondary">
+      <Typography variant="caption" color="text" style={{ fontWeight: 600 }}>
         {caption}
+      </Typography>
+    )}
+    {defination && (
+      <Typography
+        variant="caption"
+        color="textSecondary"
+        style={{ marginBottom: "0.25rem", display: "block" }}
+      >
+        {defination}
       </Typography>
     )}
     <TextField
@@ -40,8 +52,9 @@ const LabeledTextField: React.FC<Props> = ({
       fullWidth
       margin="normal"
       error={!!error}
-      helperText={error || " "} // keep space to align fields
+      helperText={helperText}
       InputProps={{ readOnly }}
+      inputProps={inputProps}  // pass it down here
     />
   </>
 );
