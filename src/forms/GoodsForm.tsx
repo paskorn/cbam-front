@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -12,7 +12,10 @@ import PGButton from "../components/FormButton";
 import { useNavigate } from "react-router-dom";
 import LabeledAutocomplete from "../components/LabeledAutoComplete";
 import LabeledTextField from "../components/LabeledTextField";
-// import { countries } from "../components/dropdown/goods";
+import {
+  fetchCountries,
+  CountryOption,
+} from "../components/dropdown/contriesmap";
 import SectionButton from "../components/SectionButton";
 import Section1 from "./formsections/Goods_sec1";
 import Section2 from "./formsections/Goods_sec2";
@@ -74,6 +77,21 @@ const GoodsForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  
+    useEffect(() => {
+      const loadCountries = async () => {
+        const fetched = await fetchCountries();
+        setCountries(fetched);
+  
+        const defaultThailand = fetched.find(
+          (c: CountryOption) => c.label === "Thailand"
+        );
+        
+      };
+      loadCountries();
+    }, []);
   //   const [formValues, setFormValues] = useState(initialValues);
   // const [formErrors, setFormErrors] = useState({});
   //   const [submittedSections, setSubmittedSections] = useState({
@@ -191,14 +209,14 @@ const GoodsForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               countries={countries}
             />
           )} */}
-        {/* <Section3
+        <Section3
           values={formValues}
           errors={formErrors}
           onChange={handleInputChange}
           onNext={() => setActiveStep(4)}
           setValues={setFormValues}
           countries={countries}
-        /> */}
+        />
       </Grid>
       {/* </form> */}
     </Container>

@@ -11,6 +11,7 @@ import {
   CountryOption,
 } from "../components/dropdown/contriesmap";
 import Box from "@mui/material/Box";
+import LabeledAutocomplete from "../components/LabeledAutoComplete";
 
 interface InstallationFormProps {
   redirectPath?: string;
@@ -20,7 +21,8 @@ const PrecursorsForm: React.FC<InstallationFormProps> = ({
   redirectPath = "/Verifier",
 }) => {
   const navigate = useNavigate();
-  const [contries, setCountries] = useState<CountryOption[]>([]);
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+
   useEffect(() => {
     const loadCountries = async () => {
       const fetched = await fetchCountries();
@@ -32,31 +34,54 @@ const PrecursorsForm: React.FC<InstallationFormProps> = ({
       if (defaultThailand) {
         setFormValues((prev) => ({
           ...prev,
-          country: String(defaultThailand.value),
-          unlocode: String(defaultThailand.value),
+          country_code: String(defaultThailand.abbreviation),
         }));
       }
     };
     loadCountries();
   }, []);
 
-  const [formValues, setFormValues] = useState({
-    installation: "",
-    economic_activity: "",
-    address: "",
-    post_code: "",
-    po_box: "",
-    city: "",
-    country: "",
-    unlocode: "",
-    lat: "",
-    long: "",
-    auth_rep: "",
-    email: "",
-    tel: "",
+  type FormValues = {
+    purchased_precursors: string;
+    country_code: string;
+    route_1?: string;
+    route_2?: string;
+    route_3?: string;
+    route_4?: string;
+    route_5?: string;
+    route_6?: string;
+    amount?: string;
+    amount1?: string;
+    amount2?: string;
+    amount3?: string;
+    amount4?: string;
+    amount5?: string;
+    amount6?: string;
+  };
+
+  const [formValues, setFormValues] = useState<FormValues>({
+    purchased_precursors: "",
+    country_code: "",
+    route_1: "",
+    route_2: "",
+    route_3: "",
+    route_4: "",
+    route_5: "",
+    route_6: "",
+    amount: "",
+    amount1: "",
+    amount2: "",
+    amount3: "",
+    amount4: "",
+    amount5: "",
+    amount6: "",
   });
 
-  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  type FormErrors = {
+    [K in keyof FormValues]?: string;
+  };
+
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -68,19 +93,14 @@ const PrecursorsForm: React.FC<InstallationFormProps> = ({
     e.preventDefault();
 
     const requiredFields = [
-      "installation",
-      "economic_activity",
-      "address",
-      "post_code",
-      "city",
-      "country",
-      "unlocode",
-      "lat",
-      "long",
-      "auth_rep",
-      "email",
-      "tel",
-      "po_box",
+      "purchased_precursors",
+      "country_code",
+      "route_1",
+      "route_2",
+      "route_3",
+      "route_4",
+      "route_5",
+      "route_6",
     ];
 
     const newErrors: { [key: string]: string } = {};
@@ -112,12 +132,17 @@ const PrecursorsForm: React.FC<InstallationFormProps> = ({
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3} alignItems="stretch">
           <Box>
-          <Typography variant="h5" fontWeight="bold" gutterBottom color="#1976d2">
-            Purchased precursors
-          </Typography>
-          <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-            รายะเอียดของวัตถุดิบที่ซื้อเข้ามาใช้ในกระบวนการผลิต
-          </Typography>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              gutterBottom
+              color="#1976d2"
+            >
+              Purchased precursors
+            </Typography>
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+              รายะเอียดของวัตถุดิบที่ซื้อเข้ามาใช้ในกระบวนการผลิต
+            </Typography>
           </Box>
           {/* SECTION 1: ข้อมูลสถานประกอบการ */}
           <Section
@@ -143,71 +168,84 @@ const PrecursorsForm: React.FC<InstallationFormProps> = ({
                   defination="รายการวัตถุดิบ"
                   label=""
                   name="purchased_precursors"
-                  value={formValues.installation}
+                  value={formValues.purchased_precursors}
                   onChange={handleInputChange}
-                  error={formErrors.installation}
+                  error={formErrors.purchased_precursors}
                 />
-                <LabeledTextField
-                  caption="Route 1"
-                  defination="เลือก Route 1"
-                  label=""
-                  name="route_1"
-                  value={formValues.economic_activity}
-                  onChange={handleInputChange}
-                  error={formErrors.economic_activity}
-                />
-                <LabeledTextField
-                  caption="Route 3"
-                  defination="เลือก Route 3"
-                  label=""
-                  type="route_3"
-                  name="post_code"
-                  value={formValues.post_code}
-                  onChange={handleInputChange}
-                  error={formErrors.post_code}
-                />
-
-                <LabeledTextField
-                  caption="Route 5"
-                  defination="เลือก Route 5"
-                  label=""
-                  value={formValues.city}
-                  name="route_5"
-                  onChange={handleInputChange}
-                  error={formErrors.city}
-                />
+                {/* <LabeledAutocompleteMap
+            caption="Route"
+            defination="เลือกเทคโนโลยีการผลิต"
+            label=""
+            name="route"
+            options={routesOptions.map((opt) => ({
+              ...opt,
+              value: String(opt.value),
+            }))}
+            value={values.route}
+            error={errors.route}
+            onChange={(val) => onChange("route", String(val))}
+          /> */}
+                {/* Text Fields for Routes */}
+                {/* {[1, 2, 3, 4, 5, 6].map((i) => (
+            <LabeledAutocompleteMap
+              key={`route${i}`}
+              caption={`Route ${i}`}
+              defination={`เลือก Route ${i}`}
+              label=""
+              name={`route${i}`}
+              options={routesOptions.map((opt) => ({
+                ...opt,
+                value: String(opt.value),
+              }))}
+              value={values[`route${i}`]}
+              error={errors[`route${i}`]}
+              onChange={(val) => onChange(`route${i}`, String(val))}
+            />
+          ))} */}
               </div>
-              <div style={{ flex: 1 }}>
-                <LabeledTextField
-                  caption="Country code "
-                  defination="เลือกรหัสประเทศที่นำเข้าวัตถุดิบ"
-                  label=""
-                  type="number"
-                  name="country_code"
-                  value={formValues.lat}
-                  onChange={handleInputChange}
-                  error={formErrors.lat}
-                />
-                <LabeledTextField
-                  caption="Route 2"
-                  defination="เลือก Route 2"
-                  label=""
-                  name="route_2"
-                  value={formValues.auth_rep}
-                  onChange={handleInputChange}
-                  error={formErrors.auth_rep}
-                />
-
-                <LabeledTextField
-                  caption="Route 4"
-                  defination="เลือก Route 4"
-                  label=""
-                  name="route_4"
-                  value={formValues.installation}
-                  onChange={handleInputChange}
-                  error={formErrors.installation}
-                />
-              </div>
+            </div>
+            <div style={{ flex: 1 }}>
+              <LabeledAutocomplete
+              caption="Country code "
+                defination="เลือกรหัสประเทศที่นำเข้าวัตถุดิบ"
+                label=""
+              name="accre_mem_state"
+              error={formErrors.country_code}
+              options={countries.map((c) => c.label)}
+              value={formValues.country_code}
+              onChange={(val) =>
+                setFormValues((prev) => ({
+                  ...prev,
+                  country_code: val,
+                }))
+              }
+            />
+              {[
+                "amount",
+                "amount_1",
+                "amount_2",
+                "amount_3",
+                "amount_4",
+                "amount_5",
+                "amount_6",
+              ].map((key) => (
+                <React.Fragment key={key}>
+                  <LabeledTextField
+                    type="number"
+                    caption={key.replace("amount", "Amount ")}
+                    defination={`ระบุจำนวน ${key}`}
+                    label=""
+                    name={key}
+                    value={formValues[key as keyof FormValues] || ""}
+                    error={formErrors[key as keyof FormErrors]}
+                    onChange={handleInputChange}
+                    inputProps={{
+                      step: "any",
+                      className: "appearance-none",
+                    }}
+                  />
+                </React.Fragment>
+              ))}
             </div>
           </Section>
 

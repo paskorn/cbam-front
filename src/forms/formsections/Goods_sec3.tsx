@@ -38,17 +38,17 @@ const Section3: React.FC<Props> = ({
         <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem" }}>
           <div style={{ flex: 1 }}>
             <LabeledCheckbox
-             caption="Measurable heat"
+              caption="Measurable heat"
               defination="ความร้อนที่สามารถวัดได้"
               name="measurable_heat_source"
-            checked={values.measurable_heat_source === "True"}
-            onChange={(e) => 
-              setValues((prev: any) => ({
-                ...prev,
-                measurable_heat_source: e.target.checked ? "True" : "False",
-              }))
-            }
-          />
+              checked={values.measurable_heat_source === "True"}
+              onChange={(e) =>
+                setValues((prev: any) => ({
+                  ...prev,
+                  measurable_heat_source: e.target.checked ? "True" : "False",
+                }))
+              }
+            />
           </div>
         </div>
 
@@ -111,7 +111,7 @@ const Section3: React.FC<Props> = ({
             defination="ก๊าซไอเสีย"
             name="waste_gas_source"
             checked={values.waste_gas_source === "True"}
-            onChange={(e) => 
+            onChange={(e) =>
               setValues((prev: any) => ({
                 ...prev,
                 waste_gas_source: e.target.checked ? "True" : "False",
@@ -189,18 +189,33 @@ const Section3: React.FC<Props> = ({
         </p>
       </div>
       <Box mb={3}>
+        <LabeledTextField
+          type="number"
+          caption="Electricity consumption"
+          defination="กรอกปริมาณการใช้ไฟฟ้ารวมของกระบวนการผลิต"
+          label=""
+          name="electricity_consumption"
+          value={values.electricity_consumption}
+          onChange={onChange}
+          error={errors.electricity_consumption}
+        />
+      </Box>
+      <Box mb={3}>
         <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem" }}>
           <div style={{ flex: 1 }}>
             <LabeledTextField
               type="number"
-              caption="Electricity consumption"
-              defination="กรอกปริมาณการใช้ไฟฟ้ารวมของกระบวนการผลิต"
+              caption="Emission factor of the electricity"
+              defination="กรอกค่า Emission factor ของไฟฟ้า"
               label=""
-              name="electricity_consumption"
-              value={values.electricity_consumption}
+              name="electricity_emission_factor_2"
+              value={values.electricity_emission_factor_2}
               onChange={onChange}
-              error={errors.electricity_consumption}
+              error={errors.electricity_emission_factor_2}
             />
+          </div>
+
+          <div style={{ flex: 1 }}>
             <LabeledAutoComplete
               caption="Source of the emission factor"
               defination="เลือกแหล่งที่มาของค่า Emission factor ของไฟฟ้า"
@@ -212,19 +227,6 @@ const Section3: React.FC<Props> = ({
               onChange={(val) =>
                 setValues((prev: any) => ({ ...prev, electricity_source: val }))
               }
-            />
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <LabeledTextField
-              type="number"
-              caption="Emission factor of the electricity"
-              defination="กรอกค่า Emission factor ของไฟฟ้า"
-              label=""
-              name="electricity_emission_factor_2"
-              value={values.electricity_emission_factor_2}
-              onChange={onChange}
-              error={errors.electricity_emission_factor_2}
             />
           </div>
         </div>
@@ -243,18 +245,6 @@ const Section3: React.FC<Props> = ({
           <div style={{ flex: 1 }}>
             <LabeledTextField
               type="number"
-              caption="Amounts exported"
-              defination="กรอกค่าไฟฟ้าที่ส่งออกจากกระบวนการผลิต"
-              label=""
-              name="electricity_exported"
-              value={values.electricity_exported}
-              onChange={onChange}
-              error={errors.electricity_exported}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <LabeledTextField
-              type="number"
               caption="Emission factor of the electricity"
               defination="กรอกค่า Emission factor ของไฟฟ้าที่ส่งออกจากกระบวนการผลิต"
               label=""
@@ -262,6 +252,18 @@ const Section3: React.FC<Props> = ({
               value={values.electricity_emission_factor}
               onChange={onChange}
               error={errors.electricity_emission_factor}
+            />
+          </div>
+          <div style={{ flex: 1 }}>
+            <LabeledTextField
+              type="number"
+              caption="Amounts exported"
+              defination="กรอกค่าไฟฟ้าที่ส่งออกจากกระบวนการผลิต"
+              label=""
+              name="electricity_exported"
+              value={values.electricity_exported}
+              onChange={onChange}
+              error={errors.electricity_exported}
             />
           </div>
         </div>

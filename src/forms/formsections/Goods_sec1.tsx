@@ -1,12 +1,7 @@
 // forms/Section1.tsx
 import React, { useState, useEffect } from "react";
 import Section from "../../components/Section";
-import LabeledAutocomplete from "../../components/LabeledAutoComplete";
 import SectionButton from "../../components/SectionButton";
-import {
-  fetchCountries,
-  CountryOption,
-} from "../../components/dropdown/contriesmap";
 import LabeledTextField from "../../components/LabeledTextField";
 import {
   fetchGoodsData,
@@ -16,6 +11,7 @@ import {
   OptionType,
   IndustryGroup,
 } from "../../components/dropdown/goods";
+
 import LabeledAutocompleteMap from "../../components/LabeledAutoCompleteMap";
 
 interface Props {
@@ -26,24 +22,6 @@ interface Props {
 }
 
 const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
-  const [countries, setCountries] = useState<CountryOption[]>([]);
-
-  useEffect(() => {
-    const loadCountries = async () => {
-      const fetched = await fetchCountries();
-      setCountries(fetched);
-
-      const defaultThailand = fetched.find(
-        (c: CountryOption) => c.label === "Thailand"
-      );
-      if (defaultThailand) {
-        onChange("country_id", String(defaultThailand.value));
-        onChange("unlocode", String(defaultThailand.value));
-      }
-    };
-    loadCountries();
-  }, []);
-
   const [goodsData, setGoodsData] = useState<IndustryGroup[]>([]);
   const [industryOptions, setIndustryOptions] = useState<OptionType[]>([]);
   const [goodsOptions, setGoodsOptions] = useState<OptionType[]>([]);
@@ -57,23 +35,19 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
   }, []);
 
   useEffect(() => {
-  if (values.industry_type && goodsData.length > 0) {
-    const industryId = Number(values.industry_type); // แปลงเป็น number
-    setGoodsOptions(getGoodsOptions(goodsData, industryId));
-  } else {
-    setGoodsOptions([]);
-  }
-}, [values.industry_type, goodsData]);
+    if (values.industry_type) {
+      setGoodsOptions(getGoodsOptions(goodsData, values.industry_type));
+    }
+  }, [values.industry_type]);
 
-useEffect(() => {
-  if (values.goods_category && values.industry_type && goodsData.length > 0) {
-    const industryId = Number(values.industry_type);
-    const goodsId = Number(values.goods_category);
-    setRoutesOptions(getRoutesOptions(goodsData, industryId, goodsId));
-  } else {
-    setRoutesOptions([]);
-  }
-}, [values.goods_category, values.industry_type, goodsData]);
+  useEffect(() => {
+    if (values.goods_category && values.industry_type) {
+      setRoutesOptions(
+        getRoutesOptions(goodsData, values.industry_type, values.goods_category)
+      );
+    }
+  }, [values.goods_category, values.industry_type]);
+
   const handleSectionSubmit = () => {
     const requiredFields = [
       "industry_type",
@@ -220,12 +194,12 @@ useEffect(() => {
                 onChange={(e) => onChange(key, e.target.value)}
                 inputProps={{
                   step: "any",
-                  className: "appearance-none",
+                  className: "no-spinner",
                 }}
               />
               <div
                 style={{
-                  marginBottom: "1.45rem", 
+                  marginBottom: "1.42rem", 
                 }}
               />
             </React.Fragment>

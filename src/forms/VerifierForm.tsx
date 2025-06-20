@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Container, Grid } from "@mui/material";
 import Section from "../components/Section";
 import PGButton from "../components/FormButton";
@@ -6,8 +6,13 @@ import { useNavigate } from "react-router-dom";
 import LabeledAutocomplete from "../components/LabeledAutoComplete";
 import LabeledTextField from "../components/LabeledTextField";
 // import { countries } from "../components/dropdown/goods";
+import {
+  fetchCountries,
+  CountryOption,
+} from "../components/dropdown/contriesmap";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
+import LabeledAutocompleteMap from "../components/LabeledAutoCompleteMap";
 
 interface VerifierFormProps {
   redirectPath?: string;
@@ -34,6 +39,27 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+  
+    useEffect(() => {
+      const loadCountries = async () => {
+        const fetched = await fetchCountries();
+        setCountries(fetched);
+  
+        const defaultThailand = fetched.find(
+          (c: CountryOption) => c.label === "Thailand"
+        );
+        if (defaultThailand) {
+          setFormValues((prev) => ({
+            ...prev,
+            country_id: String(defaultThailand.value),
+            unlocode: String(defaultThailand.abbreviation),
+          }));
+        }
+      };
+      loadCountries();
+    }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -195,16 +221,29 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               error={formErrors.post_code}
             />
 
-            {/* <LabeledAutocomplete
-              caption="Country"
-              defination="ประเทศ"
-              label=""
-              name="country"
-              options={countries}
-              value={formValues.country_id}
-              error={formErrors.country_id}
-              onChange={(val) => handleAutocompleteChange("country", val)}
-            /> */}
+            <LabeledAutocompleteMap
+                  caption="Country"
+                  defination="เลือกประเทศที่สถานประกอบการตั้งอยู่ (Country)"
+                  label=""
+                  options={countries.map((c) => ({
+                    ...c,
+                    value: String(c.value), // 🔥 cast value เป็น string
+                  }))}
+                  value={formValues.country_id}
+                  name="country_id"
+                  onChange={(val: string | number) => {
+                    const valStr = String(val);
+                    const selected = countries.find(
+                      (c) => String(c.value) === valStr
+                    ); // 🔥 compare string
+                    setFormValues((prev) => ({
+                      ...prev,
+                      country_id: valStr,
+                      unlocode: selected?.abbreviation || "",
+                    }));
+                  }}
+                  error={formErrors.country_id}
+                />
           </Section>
 
           {/* SECTION 2: Authorized Representative */}
@@ -272,18 +311,18 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               !!formErrors.reg_num
             }
           >
-            {/* <LabeledAutocomplete
+            <LabeledAutocomplete
               caption="Accreditation Member State"
               defination="เลือกประเทศ"
               label=""
               name="accre_mem_state"
               error={formErrors.accre_mem_state}
-              options={countries}
+              options={countries.map((c) => c.label)}
               value={formValues.accreditation_state}
               onChange={(val) =>
                 handleAutocompleteChange("accre_mem_state", val)
               }
-            /> */}
+            />
             <LabeledTextField
               type="text"
               caption="National Accreditation Body"
