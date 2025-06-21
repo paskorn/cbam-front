@@ -1,4 +1,4 @@
-// import React from "react";
+import React, { useEffect, useState } from "react";
 import SumupForm from "./SumupForm";
 import {
   Table,
@@ -12,44 +12,53 @@ import {
   Box,
   Chip,
 } from "@mui/material";
+import axios from "axios";
+import dayjs from "dayjs";
+// import "dayjs/locale/th";
+// dayjs.locale("th");
 
 interface CBAMData {
   product: string;
   category: string;
-  volume: string;
-  carbon: string;
+  volume?: string;
+  carbon?: string;
   date: string;
   ref: string;
 }
 
-const data: CBAMData[] = [
-  {
-    product: "Steel Rods - Grade A",
-    category: "Iron and Steel",
-    volume: "1,200",
-    carbon: "2,940 (2.45 tCO₂eq/t)",
-    date: "15 มี.ค. 2025",
-    ref: "EU-CBAM-2025-001234",
-  },
-  {
-    product: "Cement Type I",
-    category: "Cement",
-    volume: "2,500",
-    carbon: "2,300 (0.92 tCO₂eq/t)",
-    date: "10 มี.ค. 2025",
-    ref: "EU-CBAM-2025-001198",
-  },
-  {
-    product: "Aluminum Sheets",
-    category: "Aluminum",
-    volume: "450",
-    carbon: "3,654 (8.12 tCO₂eq/t)",
-    date: "8 มี.ค. 2025",
-    ref: "EU-CBAM-2025-001156",
-  },
-];
-
 const TableDashboard = () => {
+  const [data, setData] = useState<CBAMData[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "http://178.128.123.212:5000/api/cbam/report/company/1"
+        );
+
+        const raw = response.data;
+
+        // ถ้า response เป็น array ให้ map ทุกตัว, ถ้าเป็น object เดียวให้ wrap เป็น array
+        const items = Array.isArray(raw) ? raw : [raw];
+
+        const mapped: CBAMData[] = items.map((item: any) => ({
+          product: item.industry_type_name,
+          category: item.goods_category_name?.trim(),
+          volume: "-", // ยังไม่มีใน API
+          carbon: "-", // ยังไม่มีใน API
+          date: dayjs(item.reporting_period_start).format("D MMM YYYY"),
+          ref: item.cn_code_name,
+        }));
+
+        setData(mapped);
+      } catch (err) {
+        console.error("Error fetching CBAM data:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <Box>
       <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
@@ -60,12 +69,24 @@ const TableDashboard = () => {
         <Table>
           <TableHead sx={{ backgroundColor: "#f9f9f9" }}>
             <TableRow>
-              <TableCell><strong>ชื่อผลิตภัณฑ์</strong></TableCell>
-              <TableCell><strong>หมวดหมู่</strong></TableCell>
-              <TableCell><strong>ปริมาณ (Tonnes)</strong></TableCell>
-              <TableCell><strong>Carbon Footprint (tCO₂eq)</strong></TableCell>
-              <TableCell><strong>วันที่ส่งไป EU</strong></TableCell>
-              <TableCell><strong>รหัสอ้างอิง EU</strong></TableCell>
+              <TableCell>
+                <strong>ชื่อผลิตภัณฑ์</strong>
+              </TableCell>
+              <TableCell>
+                <strong>หมวดหมู่</strong>
+              </TableCell>
+              <TableCell>
+                <strong>ปริมาณ (Tonnes)</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Carbon Footprint (tCO₂eq)</strong>
+              </TableCell>
+              <TableCell>
+                <strong>วันที่ส่งไป EU</strong>
+              </TableCell>
+              <TableCell>
+                <strong>รหัสอ้างอิง EU</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -90,12 +111,11 @@ const TableDashboard = () => {
         </Table>
       </TableContainer>
 
-       <Box mt={4}>
-    <SumupForm />
-  </Box>
+      {/* Move To Installation */}
+      {/* <Box mt={4}>
+        <SumupForm />
+      </Box> */}
     </Box>
-
-   
   );
 };
 

@@ -1,19 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Grid } from "@mui/material";
+import { Container, Grid } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+
 import Section from "../components/Section";
 import PGButton from "../components/FormButton";
-import { useNavigate } from "react-router-dom";
-import LabeledTextField from "../components/LabeledTextField";
 import LabeledAutocompleteMap from "../components/LabeledAutoCompleteMap";
-// TODO: Update the import path below to the correct file location if it exists, or create the file if missing.
-import {
-  fetchCountries,
-  CountryOption,
-} from "../components/dropdown/contriesmap";
-import Navigation from "../components/Navigation";
+
 
 interface InstallationFormProps {
   redirectPath?: string;
+}
+
+interface IndustryItem {
+  industry_id: number;
+  name: string;
+}
+
+interface GoodsItem {
+  goods_id: number;
+  name: string;
+}
+
+interface CncodeItem {
+  cn_id: number;
+  name: string;
+  cn_code: string;
+  cn_code_name?: string;
 }
 
 const SumupForm: React.FC<InstallationFormProps> = ({
@@ -21,72 +33,44 @@ const SumupForm: React.FC<InstallationFormProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [countries, setCountries] = useState<CountryOption[]>([]);
-
-  useEffect(() => {
-    const loadCountries = async () => {
-      const fetched = await fetchCountries();
-      setCountries(fetched);
-
-      const defaultThailand = fetched.find(
-        (c: CountryOption) => c.label === "Thailand"
-      );
-      if (defaultThailand) {
-        setFormValues((prev) => ({
-          ...prev,
-          country_id: String(defaultThailand.value),
-          unlocode: String(defaultThailand.value),
-        }));
-      }
-    };
-    loadCountries();
-  }, []);
+  const [actionType, setActionType] = useState<"save" | "submit">("save");
+  const [industryTypes, setIndustryTypes] = useState<IndustryItem[]>([]);
+  const [goodsList, setGoodsList] = useState<GoodsItem[]>([]);
+  const [cncodeList, setCncodeList] = useState<CncodeItem[]>([]);
+  const [selectedCncode, setSelectedCncode] = useState<{
+    name: string;
+    cn_code: string;
+  } | null>(null);
 
   const [formValues, setFormValues] = useState({
-    name: "",
-    name_specific: "",
-    eco_activity: "",
-    address: "",
-    city: "",
-    country_id: "",
-    post_code: "",
-    po_box: "",
-    latitude: "",
-    longitude: "",
-    author_represent_id: "",
-
-    email: "",
-    tel: "",
-    unlocode: "",
+    industry_id: "",
+    goods_id: "",
+    cn_id: "",
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [reportId, setReportId] = useState<string | null>(null);
+  const [installationName, setInstallationName] = useState<string>("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+  // Load industry types
+  useEffect(() => {
+    const fetchIndustryTypes = async () => {
+      try {
+        const res = await fetch("http://178.128.123.212:5000/api/cbam/industry_types");
+        const data = await res.json();
+        setIndustryTypes(data);
+      } catch (err) {
+        console.error("Failed to fetch industry types", err);
+      }
+    };
+    fetchIndustryTypes();
+  }, []);
 
+  // Submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const requiredFields = [
-      "installation",
-      "eco_activity",
-      "address",
-      "post_code",
-      "city",
-      "country_id",
-      "unlocode",
-      "latitude",
-      "longitude",
-      "author_represent_id ",
-      "email",
-      "tel",
-      "po_box",
-    ];
-
+    const requiredFields = ["industry_id", "goods_id", "cn_id"];
     const newErrors: { [key: string]: string } = {};
 
     requiredFields.forEach((field) => {
@@ -104,116 +88,224 @@ const SumupForm: React.FC<InstallationFormProps> = ({
       return;
     }
 
-    const handleSubmitInstallations = async () => {
-      const payload = {
-        name: formValues.name,
-        name_specific: formValues.name_specific,
-        eco_activity: formValues.eco_activity,
-        address: formValues.address,
-        city: formValues.city,
-        country_id: formValues.country_id,
-        post_code: formValues.post_code,
-        po_box: formValues.po_box,
-        latitude: formValues.latitude,
-        longitude: formValues.longitude,
-        author_represent_id: formValues.author_represent_id,
-      };
-
-      try {
-        const response = await fetch("/api/installations", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) throw new Error("Installations submission failed");
-        console.log("✅ Installations submitted successfully");
-      } catch (error) {
-        console.error(error);
-      }
+    const payload = {
+      industry_type_id: Number(formValues.industry_id),
+      goods_id: Number(formValues.goods_id),
+      cn_id: Number(formValues.cn_id),
     };
-    await handleSubmitInstallations();
+    // console.log("Form values before submit:", formValues);
+    // console.log("Payload:", payload);
 
-    // console.log("✅ Submitted:", formValues);
-    navigate(redirectPath);
+    if (isNaN(payload.cn_id)) {
+      alert("CN Code ไม่ถูกต้อง");
+      return;
+    }
+
+
+    try {
+      const res = await fetch("http://178.128.123.212:5000/api/cbam/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`Error ${res.status}: ${errorText}`);
+      }
+
+      const responseData = await res.json();
+      const reportId = responseData.id;
+      setReportId(String(reportId));
+      localStorage.setItem("reportId", responseData.id);
+
+      navigate("/Form", { state: { reportId } });
+
+      console.log("reportId", responseData.id);
+
+    } catch (error) {
+      console.error("Failed to submit report:", error);
+      alert("เกิดข้อผิดพลาดในการส่งข้อมูล โปรดลองอีกครั้ง");
+    }
   };
 
+  // Fetch report details after POST
+  useEffect(() => {
+    if (!reportId) return;
+
+    const fetchReport = async () => {
+      try {
+        const res = await fetch(`http://178.128.123.212:5000/api/cbam/report/${reportId}`);
+        if (!res.ok) {
+          throw new Error(`Error fetching report ${reportId}: ${res.statusText}`);
+        }
+        const dataArr = await res.json();
+        if (!Array.isArray(dataArr) || dataArr.length === 0) {
+          throw new Error("No data found");
+        }
+
+        const data = dataArr[0];
+        setFormValues({
+          industry_id: String(data.industry_type_id || ""),
+          goods_id: String(data.goods_id || ""),
+          cn_id: String(data.cn_id || ""),
+        });
+
+        setInstallationName(data.installation_name?.trim() || "");
+
+        // Fetch goods list for dropdown
+        const goodsRes = await fetch(`http://178.128.123.212:5000/api/cbam/goods/${data.industry_type_id}`);
+        const goodsData = await goodsRes.json();
+        setGoodsList(goodsData);
+
+        // Fetch cncode list for dropdown
+        const cnRes = await fetch(`http://178.128.123.212:5000/api/cbam/cncodes/${data.goods_id}`);
+        const cnData = await cnRes.json();
+        setCncodeList(cnData);
+
+      } catch (error) {
+        console.error(error);
+        alert("เกิดข้อผิดพลาดในการโหลดข้อมูลรายงาน");
+      }
+    };
+
+    fetchReport();
+  }, [reportId]);
+
+  // Sync selectedCncode after cncodeList loaded
+  useEffect(() => {
+    if (!formValues.cn_id || cncodeList.length === 0) return;
+    const selected = cncodeList.find(
+      (item) => String(item.cn_id) === String(formValues.cn_id)
+    );
+    if (selected) {
+      setSelectedCncode({
+        name: selected.cn_code_name || selected.name,
+        cn_code: selected.cn_code,
+      });
+    }
+  }, [formValues.cn_id, cncodeList]);
+
   return (
-    <Container
-      maxWidth="md"
-      style={{ paddingTop: "2rem", paddingBottom: "2rem" }}
-    >
+    <Container maxWidth="md" style={{ paddingTop: "2rem", paddingBottom: "2rem" }}>
       <form onSubmit={handleSubmit}>
-        <Grid container spacing={3} alignItems="stretch">
-          {/* SECTION 1: ข้อมูลสถานประกอบการ */}
+        <Grid container spacing={3}>
           <Section
             defaultExpanded={true}
             title="Installation form"
-            subtitle=""
             hasError={
-              !!formErrors.installation ||
-              !!formErrors.eco_activity ||
-              !!formErrors.address ||
-              !!formErrors.post_code ||
-              !!formErrors.city ||
-              !!formErrors.country_id ||
-              !!formErrors.latitude ||
-              !!formErrors.longitude ||
-              !!formErrors.author_represent_id ||
-              !!formErrors.email ||
-              !!formErrors.tel ||
-              !!formErrors.po_box
+              !!formErrors.industry_id ||
+              !!formErrors.goods_id ||
+              !!formErrors.cn_id
             }
           >
-            <div
-              style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem" }}
-            >
-             
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {installationName && (
+                <div>
+                  <strong>Installation Name:</strong> {installationName}
+                </div>
+              )}
 
-              <div style={{ flex: 1 }}>
-                <LabeledTextField
-                  type="number"
-                  caption="Industry Type"
-                  defination="ประเภทอุตสาหกรรม"
-                  label=""
-                  name="po_box"
-                  value={formValues.po_box}
-                  onChange={handleInputChange}
-                  error={formErrors.po_box}
-                  //   helperText="ตู้ ปณ."
-                />
+              {/* Industry Type */}
+              <LabeledAutocompleteMap
+                caption="Industry Type"
+                defination="ประเภทอุตสาหกรรม"
+                label="Pls choose Industry"
+                name="industry_id"
+                options={industryTypes.map((item) => ({
+                  label: item.name,
+                  value: String(item.industry_id),
+                }))}
+                value={formValues.industry_id}
+                onChange={async (val) => {
+                  setFormValues({
+                    industry_id: String(val),
+                    goods_id: "",
+                    cn_id: "",
+                  });
+                  setGoodsList([]);
+                  setCncodeList([]);
+                  setSelectedCncode(null);
 
-                <LabeledAutocompleteMap
-                  caption="Precursor"
-                  defination="วัตถุดิบตั้งต้น"
-                  label=""
-                  options={countries.map((c) => ({ ...c, value: String(c.value) }))}
-                  value={formValues.country_id}
-                  name="country_id"
-                  onChange={(val) => {
-                    const selected = countries.find((c) => c.value === val);
-                    setFormValues((prev) => ({
-                      ...prev,
-                      country_id: String(val),
-                      unlocode: selected ? String(selected.value) : "",
-                    }));
-                  }}
-                  error={formErrors.country}
-                />
+                  try {
+                    const res = await fetch(`http://178.128.123.212:5000/api/cbam/goods/${val}`);
+                    const data = await res.json();
+                    setGoodsList(data);
+                  } catch (err) {
+                    console.error("Failed to fetch goods list", err);
+                  }
+                }}
+                error={formErrors.industry_id}
+              />
 
-                <LabeledTextField
-                  type="number"
-                  caption="CN. code"
-                  defination=""
-                  label=""
-                  name="longitude"
-                  value={formValues.longitude}
-                  onChange={handleInputChange}
-                  error={formErrors.long}
-                />
+              {/* Goods */}
+              <LabeledAutocompleteMap
+                caption="Goods"
+                defination="วัตถุดิบตั้งต้น"
+                label="Pls choose Goods"
+                name="goods_id"
+                options={goodsList.map((item) => ({
+                  label: item.name,
+                  value: String(item.goods_id),
+                }))}
+                value={formValues.goods_id}
+                onChange={async (val) => {
+                  setFormValues((prev) => ({
+                    ...prev,
+                    goods_id: String(val),
+                    cn_id: "",
+                  }));
+                  setCncodeList([]);
+                  setSelectedCncode(null);
 
-               
-              </div>
+                  try {
+                    const res = await fetch(`http://178.128.123.212:5000/api/cbam/cncodes/${val}`);
+                    const data = await res.json();
+                    setCncodeList(data);
+                  } catch (err) {
+                    console.error("Failed to fetch cncodes list", err);
+                  }
+                }}
+                error={formErrors.goods_id}
+              />
+
+              {/* CN Code */}
+              <LabeledAutocompleteMap
+                caption="CN Code"
+                defination="CN Code"
+                label="Pls choose CN Code"
+                name="cn_id"
+                options={cncodeList.map((item) => ({
+                  label: `${item.cn_code} - ${item.cn_code_name || item.name}`,
+                  value: String(item.cn_id),
+                }))}
+                value={formValues.cn_id}
+                onChange={(val) => {
+                  setFormValues((prev) => ({
+                    ...prev,
+                    cn_id: String(val),
+                  }));
+
+                  const selected = cncodeList.find(
+                    (item) => String(item.cn_id) === String(val)
+                  );
+                  if (selected) {
+                    setSelectedCncode({
+                      name: selected.cn_code_name || selected.name,
+                      cn_code: selected.cn_code,
+                    });
+                  }
+                }}
+                error={formErrors.cn_id}
+              />
+
+              {/* CN Code Info */}
+              {selectedCncode && (
+                <div style={{ color: "#1976d2" }}>
+                  <strong>CN Code:</strong> {selectedCncode.cn_code} <br />
+                  <strong>CN Code Name:</strong> {selectedCncode.name}
+                </div>
+              )}
             </div>
           </Section>
 
