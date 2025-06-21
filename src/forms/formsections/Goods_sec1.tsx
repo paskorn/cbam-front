@@ -40,10 +40,9 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
   const [industryOptions, setIndustryOptions] = useState<OptionType[]>([]);
   const [goodsOptions, setGoodsOptions] = useState<OptionType[]>([]);
   const [routesOptions, setRoutesOptions] = useState<OptionType[]>([]);
-  const [routeCount, setRouteCount] = useState(
-    Math.min(values.routes?.length || 1, 6)
-  );
+  const [routeCount, setRouteCount] = useState(Math.min(values.routes?.length || 1, 6));
 
+  // Fetch goods data and set industry options on mount
   useEffect(() => {
     fetchGoodsData().then((data) => {
       setGoodsData(data);
@@ -52,11 +51,11 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
     });
   }, []);
 
+  // Update goods options when industry type changes
   useEffect(() => {
     if (values.industry_type) {
       const options = getGoodsOptions(goodsData, +values.industry_type);
       setGoodsOptions(options);
-
       if (!options.some((opt) => opt.value === values.goods_category)) {
         onChange("goods_category", "");
         onChange("routes", []);
@@ -67,19 +66,14 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
     }
   }, [values.industry_type, goodsData]);
 
+  // Update routes options when goods category changes
   useEffect(() => {
     if (values.goods_category && values.industry_type) {
-      const options = getRoutesOptions(
-        goodsData,
-        +values.industry_type,
-        +values.goods_category
-      );
+      const options = getRoutesOptions(goodsData, +values.industry_type, +values.goods_category);
       setRoutesOptions(options);
-
       if (!options.some((opt) => values.routes.includes(String(opt.value)))) {
         onChange("routes", []);
       }
-
       if (options.length === 1) {
         onChange("routes", [String(options[0].value)]);
       }
@@ -88,13 +82,14 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
     }
   }, [values.goods_category, values.industry_type, goodsData]);
 
+  // Update count of routes when they change
   useEffect(() => {
     setRouteCount(Math.min(values.routes?.length || 1, 6));
   }, [values.routes]);
 
+  // Handle submission for the section
   const handleSectionSubmit = () => {
     const validationErrors: FormErrors = {};
-
     if (!values.industry_type) {
       validationErrors.industry_type = "กรุณากรอกข้อมูล";
     }
@@ -104,26 +99,33 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
     if (!values.routes || values.routes.length === 0) {
       validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
     }
-
+    
+    // If validation fails, log errors and exit
     if (Object.keys(validationErrors).length > 0) {
       console.log("Validation errors:", validationErrors);
       return;
     }
 
-    localStorage.setItem(
-      "precursorData",
-      JSON.stringify({
-        routes: values.routes || [],
-        amounts: values.amounts || {},
-        industry_type: values.industry_type,
-        goods_category: values.goods_category,
-        precursors: values.routes.map((r) => {
-          const found = routesOptions.find((opt) => String(opt.value) === r);
-          return found?.label || r;
-        }),
-      })
-    );
+    // Save data to local storage
+    localStorage.setItem("precursorData", JSON.stringify({
+      routes: values.routes || [],
+      amounts: values.amounts || {},
+      industry_type: values.industry_type,
+      goods_category: values.goods_category,
+      precursors: values.routes.map((r) => {
+        const found = routesOptions.find((opt) => String(opt.value) === r);
+        return found?.label || r;
+      }),
+    }));
 
+    console.log("Section 1 data saved:", {
+      routes: values.routes,
+      amounts: values.amounts,
+      industry_type: values.industry_type,
+      goods_category: values.goods_category,
+    });
+
+    // Call onNext to navigate to the next section
     onNext();
   };
 
@@ -132,11 +134,10 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
       defaultExpanded={true}
       title="(a) List of aggregated goods categories and corresponding production routes"
       subtitle="ชื่อและที่อยู่ผู้ทวนสอบ"
-      hasError={
-        !!(errors.industry_type || errors.goods_category || errors.routes)
-      }
+      hasError={!!(errors.industry_type || errors.goods_category || errors.routes)}
     >
       <div style={{ marginBottom: "1rem" }}>
+        {/* Industry Type and Goods Category Input */}
         <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem" }}>
           <div style={{ flex: 1 }}>
             <LabeledAutocompleteMap
@@ -174,29 +175,17 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
           </div>
         </div>
 
+        {/* Production Routes Input */}
         <div style={{ marginBottom: "1rem" }}>
           {routesOptions.length > 0 ? (
             <>
               <h4>Production Routes</h4>
-              <p
-                style={{
-                  color: "#666",
-                  fontSize: "0.9rem",
-                  marginBottom: "10px",
-                }}
-              >
-                Please select up to 6 precursors that apply
+              <p style={{ color: "#666", fontSize: "0.9rem", marginBottom: "10px" }}>
+                Please select up to 6 routes that apply
               </p>
-
               {[...Array(routeCount)].map((_, index) => (
                 <div key={index} style={{ marginBottom: "12px" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "15px",
-                      alignItems: "flex-start",
-                    }}
-                  >
+                  <div style={{ display: "flex", gap: "15px", alignItems: "flex-start" }}>
                     <div style={{ flex: 3 }}>
                       <LabeledAutocompleteMap
                         caption={`Route ${index + 1}`}
@@ -208,18 +197,11 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
                           value: String(opt.value),
                         }))}
                         value={values.routes[index] || ""}
-                        error={
-                          index === 0 && errors.routes
-                            ? errors.routes
-                            : undefined
-                        }
+                        error={index === 0 && errors.routes ? errors.routes : undefined}
                         onChange={(val) => {
                           const updatedRoutes = [...values.routes];
                           updatedRoutes[index] = String(val);
-                          onChange(
-                            "routes",
-                            updatedRoutes.filter((item) => item)
-                          );
+                          onChange("routes", updatedRoutes.filter((item) => item));
                         }}
                       />
                     </div>
@@ -250,7 +232,6 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
                   </div>
                 </div>
               ))}
-
               {routeCount < 6 && (
                 <button
                   type="button"
@@ -268,47 +249,33 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
                   + เพิ่ม Route
                 </button>
               )}
-
               {routesOptions.length > 6 && (
-                <p
-                  style={{
-                    color: "#e67e22",
-                    fontSize: "0.9rem",
-                    marginTop: "5px",
-                  }}
-                >
+                <p style={{ color: "#e67e22", fontSize: "0.9rem", marginTop: "5px" }}>
                   Note: มีวัตถุดิบมากกว่า 6 รายการ แต่จำกัดให้เลือกได้ไม่เกิน 6
                 </p>
               )}
             </>
           ) : (
-            <p
-              style={{
-                color: "#e74c3c",
-                padding: "10px",
-                backgroundColor: "#fceae9",
-                borderRadius: "4px",
-              }}
-            >
+            <p style={{ color: "#e74c3c", padding: "10px", backgroundColor: "#fceae9", borderRadius: "4px" }}>
               ไม่มีตัวเลือกวัตถุดิบที่เกี่ยวข้อง
             </p>
           )}
         </div>
 
+        {/* Section Button for transitioning to the next step */}
         <div style={{ display: "flex", justifyContent: "right" }}>
           <SectionButton
             onValidate={() => {
               const validationErrors: FormErrors = {};
-              if (!values.industry_type)
-                validationErrors.industry_type = "กรุณากรอกข้อมูล";
-              if (!values.goods_category)
-                validationErrors.goods_category = "กรุณากรอกข้อมูล";
-              if (!values.routes || values.routes.length === 0)
-                validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
+              if (!values.industry_type) validationErrors.industry_type = "กรุณากรอกข้อมูล";
+              if (!values.goods_category) validationErrors.goods_category = "กรุณากรอกข้อมูล";
+              if (!values.routes || values.routes.length === 0) validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
               return Object.keys(validationErrors).length === 0;
             }}
-            onSuccess={handleSectionSubmit}
-          />
+            onSuccess={handleSectionSubmit} // Now it directly calls handleSectionSubmit
+          >
+            Next
+          </SectionButton>
         </div>
       </div>
     </Section>

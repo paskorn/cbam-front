@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Typography,
-  Button,
-  Box,
-} from "@mui/material";
+import { Container, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 import Section from "../components/Section";
 import PrecursorFields from "./formsections/Precursors_sec1";
-import {
-  fetchCountries,
-  CountryOption,
-} from "../components/dropdown/contriesmap";
-import {
-  fetchGoodsData,
-  getPrecursorsOptions,
-  IndustryGroup,
-} from "../components/dropdown/goods";
+import { fetchCountries, CountryOption } from "../components/dropdown/contriesmap";
+import { fetchGoodsData, getPrecursorsOptions, IndustryGroup } from "../components/dropdown/goods";
 
 interface PrecursorsFormProps {
   redirectPath?: string;
+}
+
+interface FormValues {
+  [key: string]: string;
 }
 
 const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
@@ -30,7 +22,7 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
   const [precursorsCount, setPrecursorsCount] = useState<number>(0);
   const [industryTypeId, setIndustryTypeId] = useState<number | undefined>();
   const [goodsId, setGoodsId] = useState<number | undefined>();
-  const [formValues, setFormValues] = useState<{ [key: string]: any }>({});
+  const [formValues, setFormValues] = useState<FormValues>({});
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
@@ -52,30 +44,23 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
 
   useEffect(() => {
     if (industryTypeId && goodsId && goodsData.length > 0) {
-      const precursors =
-        getPrecursorsOptions(goodsData, industryTypeId, goodsId) || [];
-
+      const precursors = getPrecursorsOptions(goodsData, industryTypeId, goodsId) || [];
       const limitedPrecursors = precursors.slice(0, 6);
-      const updatedValues: { [key: string]: string } = {};
+      const updatedValues: FormValues = {};
 
       limitedPrecursors.forEach((precursor, index) => {
-        updatedValues[`purchased_precursors_${index + 1}`] = String(
-          precursor.value || ""
-        );
+        updatedValues[`purchased_precursors_${index + 1}`] = String(precursor.value || "");
         updatedValues[`amount_${index + 1}`] = "";
       });
 
-      const defaultCountry = countries.find(
-        (c) => c.abbreviation === "TH" || c.label === "Thailand"
-      );
+      const defaultCountry = countries.find(c => c.abbreviation === "TH" || c.label === "Thailand");
       if (defaultCountry) {
         limitedPrecursors.forEach((_, index) => {
-          updatedValues[`country_code_${index + 1}`] =
-            defaultCountry.abbreviation;
+          updatedValues[`country_code_${index + 1}`] = defaultCountry.abbreviation;
         });
       }
 
-      setFormValues((prev) => ({
+      setFormValues(prev => ({
         ...prev,
         ...updatedValues,
       }));
@@ -84,8 +69,8 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
   }, [industryTypeId, goodsId, goodsData, countries]);
 
   const handleChange = (name: string, value: string | string[]) => {
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormValues(prev => ({ ...prev, [name]: Array.isArray(value) ? value.join(",") : String(value) }));
+    setFormErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -107,25 +92,19 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
     setFormErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const routes = Array.from({ length: precursorsCount }).map(
-        (_, idx) => formValues[`purchased_precursors_${idx + 1}`] || ""
-      );
-      const amounts = Array.from({ length: precursorsCount }).reduce<{
-        [key: number]: string;
-      }>((acc, _, idx) => {
-        acc[idx] = formValues[`amount_${idx + 1}`] || "";
-        return acc;
-      }, {});
+      const routes = Array.from({ length: precursorsCount }, (_, idx) => formValues[`purchased_precursors_${idx + 1}`] || "");
+      const amounts = Array.from({ length: precursorsCount }, (_, idx) => formValues[`amount_${idx + 1}`] || "")
+        .reduce<{ [key: number]: string }>((acc, curr, idx) => {
+          acc[idx] = curr;
+          return acc;
+        }, {});
 
-      localStorage.setItem(
-        "precursorData",
-        JSON.stringify({
-          routes,
-          amounts,
-          industry_type: industryTypeId,
-          goods_category: goodsId,
-        })
-      );
+      localStorage.setItem("precursorData", JSON.stringify({
+        routes,
+        amounts,
+        industry_type: industryTypeId,
+        goods_category: goodsId,
+      }));
 
       navigate("/next-step");
     }
@@ -140,7 +119,7 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
           component="span"
           style={{ display: "block", color: "#666" }}
         >
-          รายะเอียดของวัตถุดิบที่ซื้อเข้ามาใช้ในกระบวนการผลิต
+          รายละเอียดของวัตถุดิบที่ซื้อเข้ามาใช้ในกระบวนการผลิต
         </Typography>
       </Typography>
 
@@ -151,7 +130,7 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
           subtitle="รายการวัตถุดิบ"
           hasError={Object.keys(formErrors).length > 0}
         >
-          {Array.from({ length: precursorsCount-1 }).map((_, idx) => (
+          {Array.from({ length: precursorsCount }).map((_, idx) => (
             <PrecursorFields
               key={idx + 1}
               index={idx + 1}
@@ -161,6 +140,7 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
               onChange={handleChange}
               precursorValue={formValues[`purchased_precursors_${idx + 1}`] || ""}
               routeValue=""
+              // Assuming these values are defined somewhere appropriately
               industryTypeId={industryTypeId}
               goodsId={goodsId}
             />
@@ -173,7 +153,7 @@ const PrecursorsForm: React.FC<PrecursorsFormProps> = () => {
           </Button>
         </Box>
       </form>
-    </Container>  
+    </Container>
   );
 };
 

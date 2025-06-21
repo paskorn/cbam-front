@@ -15,17 +15,21 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
     backgroundColor: '#81c784',
   },
   [theme.breakpoints.down('sm')]: {
-    height: '50px',
-    fontSize: '10px',
+    height: '40px',
+    fontSize: '14px',
   },
 }));
 
-const SectionButton = ({
-  onValidate,
-  onSuccess,
-}: {
+interface SectionButtonProps {
   onValidate: () => boolean;
   onSuccess: () => void;
+  children?: React.ReactNode; // This allows passing in any additional content (e.g., icons)
+}
+
+const SectionButton: React.FC<SectionButtonProps> = ({
+  onValidate,
+  onSuccess,
+  children,
 }) => {
   const handleClick = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,8 +39,8 @@ const SectionButton = ({
   };
 
   return (
-    <PaleGreenButton type="submit" onClick={handleClick}>
-      Next
+    <PaleGreenButton type="button" onClick={handleClick} aria-label="Proceed to next step">
+      {children || 'Next'}
     </PaleGreenButton>
   );
 };
