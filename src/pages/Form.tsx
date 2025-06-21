@@ -1,101 +1,118 @@
-// import React, { useState, useRef } from 'react';
-// import {
-//   Container,
-//   Stepper,
-//   Step,
-//   StepLabel,
-//   Box,
-//   Typography,
-// } from '@mui/material';
-// import PGButton from '../components/FormButton';
+import React, { useState } from 'react';
+import {
+    Container, Stepper, Step, StepLabel, Button, Box, Typography,
+} from '@mui/material';
 
-// import InstallationForm from '../forms/installationForm';
-// import VerifierForm from '../forms/VerifierForm';
-// import GoodsForm from '../forms/GoodsForm';
-// import PrecursorsForm from '../forms/PrecursorsForm';
-// import AmountForm from '../forms/AmountForm';
+import InstallationForm from '../forms/installationForm';
+import VerifierForm from '../forms/VerifierForm';
+import GoodsForm from '../forms/GoodsForm';
+import PrecursorsForm from '../forms/PrecursorsForm';
+import AmountForm from '../forms/AmountForm';
 
-// const steps = ['Installation', 'Verifier', 'Goods', 'Precursors', 'Amount'];
+const steps = ['Installation', 'Verifier', 'Goods', 'Precursors', 'Amount'];
 
-// const Form: React.FC = () => {
-//   const [activeStep, setActiveStep] = useState(0);
+const Form: React.FC = () => {
+    const [activeStep, setActiveStep] = useState(0);
 
-//   const formRefs = [
-//     useRef<any>(null),
-//     useRef<any>(null),
-//     useRef<any>(null),
-//     useRef<any>(null),
-//     useRef<any>(null),
-//   ];
+    const [installationData, setInstallationData] = useState({
+        name: '',
+        name_specific: '',
+        eco_activity: '',
+        address: '',
+        city: '',
+        country_id: '',
+        post_code: '',
+        po_box: '',
+        latitude: '',
+        longitude: '',
+        author_represent_id: '',
+        email: '',
+        tel: '',
+        unlocode: '',
+        reporting_period_start: new Date(),
+        reporting_period_end: new Date(),
+    });
 
-//   const handleNext = async () => {
-//     const currentRef = formRefs[activeStep].current;
-//     if (currentRef && currentRef.submit) {
-//       const success = await currentRef.submit();
-//       if (success) {
-//         setActiveStep((prev) => prev + 1);
-//       } else {
-//         alert('Submit failed. Please check your input.');
-//       }
-//     }
-//   };
+    const [verifierData, setVerifierData] = useState({
+        installation_name: "",
+        address: "",
+        city: "",
+        country_id: "",
+        post_code: "",
+        authorized_rep_id: "",
+        accreditation_state: "",
+        accreditation_national_body: "",
+        registration_no: "",
+        name: "",
+        email: "",
+        phone: "",
+        fax: "",
+    });
 
-//   const handleBack = () => {
-//     setActiveStep((prev) => prev - 1);
-//   };
+    // คุณสามารถเพิ่ม state สำหรับฟอร์มอื่น ๆ แบบเดียวกันได้
+    const [goodsData, setGoodsData] = useState({});
+    const [precursorsData, setPrecursorsData] = useState({});
+    const [amountData, setAmountData] = useState({});
 
-//   const handleSubmit = async () => {
-//     const currentRef = formRefs[activeStep].current;
-//     if (currentRef && currentRef.submit) {
-//       const success = await currentRef.submit();
-//       if (success) {
-//         alert('Form submitted!');
-//       }
-//     }
-//   };
+    const handleNext = () => setActiveStep((prevStep) => prevStep + 1);
+    const handleBack = () => setActiveStep((prevStep) => prevStep - 1);
 
-//   const renderStepContent = (step: number) => {
-//     switch (step) {
-//       case 0:
-//         return <InstallationForm ref={formRefs[0]} />;
-//       case 1:
-//         return <VerifierForm ref={formRefs[1]} />;
-//       case 2:
-//         return <GoodsForm ref={formRefs[2]} />;
-//       case 3:
-//         return <PrecursorsForm ref={formRefs[3]} />;
-//       case 4:
-//         return <AmountForm ref={formRefs[4]} />;
-//       default:
-//         return <Typography>Unknown step</Typography>;
-//     }
-//   };
+    const handleSubmit = () => {
+        const allData = {
+            installationData,
+            verifierData,
+            goodsData,
+            precursorsData,
+            amountData,
+        };
+        console.log('📦 Submitting all form data:', allData);
+        alert('✅ Form submitted!');
+    };
 
-//   return (
-//     <Container maxWidth="md" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
-//       <Stepper activeStep={activeStep} alternativeLabel>
-//         {steps.map((label) => (
-//           <Step key={label}>
-//             <StepLabel>{label}</StepLabel>
-//           </Step>
-//         ))}
-//       </Stepper>
+    const renderStepContent = (step: number) => {
+        switch (step) {
+            case 0:
+                return (
+                    <InstallationForm
+                        data={installationData}
+                        onChange={setInstallationData}
+                    />
+                );
+            case 1:
+                return <VerifierForm data={verifierData} onChange={setVerifierData} />;
+            // case 2:
+            //     return <GoodsForm data={goodsData} onChange={setGoodsData} />;
+            // case 3:
+            //   return <PrecursorsForm data={precursorsData} onChange={setPrecursorsData} />;
+            // case 4:
+            //   return <AmountForm data={amountData} onChange={setAmountData} />;
+            default:
+                return <Typography>Unknown step</Typography>;
+        }
+    };
 
-//       <Box mt={6}>{renderStepContent(activeStep)}</Box>
+    return (
+        <Container maxWidth="md" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+            <Stepper activeStep={activeStep} alternativeLabel>
+                {steps.map((label) => (
+                    <Step key={label}>
+                        <StepLabel>{label}</StepLabel>
+                    </Step>
+                ))}
+            </Stepper>
 
-//       <Box mt={6} display="flex" justifyContent="space-between">
-//         <PGButton onClick={handleBack} disabled={activeStep === 0}>
-//           Back
-//         </PGButton>
+            <Box mt={6}>{renderStepContent(activeStep)}</Box>
 
-//         {activeStep === steps.length - 1 ? (
-//           <PGButton onClick={handleSubmit}>Submit</PGButton>
-//         ) : (
-//           <PGButton onClick={handleNext}>Next</PGButton>
-//         )}
-//       </Box>
-//     </Container>
-//   );
-// };
+            <Box mt={6} display="flex" justifyContent="space-between">
+                <Button disabled={activeStep === 0} onClick={handleBack} variant="outlined">Back</Button>
+                {activeStep === steps.length - 1 ? (
+                    <Button onClick={handleSubmit} variant="contained" color="primary">Submit</Button>
+                ) : (
+                    <Button onClick={handleNext} variant="contained" color="primary">Next</Button>
+                )}
+            </Box>
+        </Container>
+    );
+};
 
-// export default Form;
+export default Form;

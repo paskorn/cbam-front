@@ -201,33 +201,33 @@ function App() {
               userStatus="Welcome!" // Static welcome message
             />
             <NavigationProp>
-            <div style={{
-              background: 'white',
-              borderRadius: '8px',
-              padding: '32px',
-              minHeight: '400px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-            }}>
-              
-              <Routes>
-                {/* <Route path="/" element={<Installation />} /> Default route to Installation page */}
-                {/* <Route path="/installation" element={<Installation />} />   */}
-                {/* <Route path="/Verifier" element={<Verifier/>} /> 
+              <div style={{
+                background: 'white',
+                borderRadius: '8px',
+                padding: '32px',
+                minHeight: '400px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}>
+
+                <Routes>
+                  {/* <Route path="/" element={<Installation />} /> Default route to Installation page */}
+                  {/* <Route path="/installation" element={<Installation />} />   */}
+                  {/* <Route path="/Verifier" element={<Verifier/>} /> 
                 <Route path="/Dashboard" element={<Dashboard/>} /> 
                 <Route path="/Goods" element={<Goods/>} />  */}
-                <Route path="/Home" element={<Dashboard/>} />  
-                <Route path="/Form" element={<Form/>} />  
-                <Route path="/Formdev" element={<Form/>} />  
+                  <Route path="/Home" element={<Dashboard />} />
+                  <Route path="/Form" element={<Form />} />
+                  <Route path="/Formdev" element={<Form />} />
 
-                <Route path="/Report" element={<Dashboard/>} />  
-              
-
+                  <Route path="/Report" element={<Dashboard />} />
 
 
-                {/* Feel free to add more routes here */}
-              </Routes>
-              
-            </div>
+
+
+                  {/* Feel free to add more routes here */}
+                </Routes>
+
+              </div>
             </NavigationProp>
           </Container>
         </div>
