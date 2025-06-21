@@ -173,6 +173,8 @@ import Dashboard from './pages/Dashboard';
 import NavigationProp from './components/NavigationProp';
 // import Form from './pages/Form'; // Import the Form page
 import Form from './pages/Formdev'; // Import the Form page
+import Report from './pages/Report';
+
 
 const theme = createTheme({
   typography: {

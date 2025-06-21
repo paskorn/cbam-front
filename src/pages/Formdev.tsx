@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Container, Stepper, Step, StepLabel, Button, Box, Typography,
+  Container,
+  Stepper,
+  Step,
+  StepLabel,
+  Button,
+  Box,
+  Typography,
 } from '@mui/material';
 
-import InstallationForm from '../forms/installationForm';
-import VerifierForm from '../forms/VerifierForm';
-import GoodsForm from '../forms/GoodsForm';
-import PrecursorsForm from '../forms/PrecursorsForm';
-import AmountForm from '../forms/AmountForm';
+import InstallationForm from "../forms/installationForm";
+import VerifierForm from "../forms/VerifierForm";
+import GoodsForm from "../forms/GoodsForm";
+import PrecursorsForm from "../forms/PrecursorsForm";
+import AmountForm from "../forms/AmountForm";
+import SourceForm from "../forms/SourceForm";
 
-const steps = ['Installation', 'Verifier', 'Goods', 'Precursors', 'Amount'];
+const steps = [
+  "Installation",
+  "Verifier",
+  "Goods",
+  "Precursors",
+  "Amount",
+  "Source",
+];
 
 const Formdev: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -128,13 +142,18 @@ const Formdev: React.FC = () => {
         return <PrecursorsForm />;
       case 4:
         return <AmountForm />;
+      case 5:
+        return <SourceForm />;
       default:
         return <Typography>Unknown step</Typography>;
     }
   };
 
   return (
-    <Container maxWidth="md" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+    <Container
+      maxWidth="md"
+      style={{ paddingTop: "2rem", paddingBottom: "2rem" }}
+    >
       {/* 🟡 Status bar */}
       <Stepper activeStep={activeStep} alternativeLabel>
         {steps.map((label) => (

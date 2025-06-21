@@ -8,61 +8,25 @@ import {
 import Section from "../components/Section";
 import PGButton from "../components/FormButton";
 import { useNavigate } from "react-router-dom";
+import LabeledAutocomplete from "../components/LabeledAutoComplete";
+import LabeledTextField from "../components/LabeledTextField";
 import {
   fetchCountries,
   CountryOption,
 } from "../components/dropdown/contriesmap";
+import SectionButton from "../components/SectionButton";
 import Section1 from "./formsections/Goods_sec1";
 import Section2 from "./formsections/Goods_sec2";
 import Section3 from "./formsections/Goods_sec3";
-import axios from "axios";
 
-interface GoodsFormProps {
-  data: {
-    report_id: number;
-    name: string;
-    route_1: string;
-    route_1_amounts: number;
-    route_2: string | null;
-    route_2_amounts: number | null;
-    route_3: string | null;
-    route_3_amounts: number | null;
-    route_4: string | null;
-    route_4_amounts: number | null;
-    route_5: string | null;
-    route_5_amounts: number | null;
-    route_6: string | null;
-    route_6_amounts: number | null;
-    total_consumed_within_installation: number;
-    consumed_in_others_amounts: number;
-    condumed_non_cbam_goods_amounts: number;
-    has_heat: number;
-    has_waste_gases: number;
-    direct_emissions: number;
-    imported_heat_value: number;
-    exported_heat_value: number;
-    ef_imported_heat: number;
-    ef_exported_heat: number;
-    electricity_consumption_value: number;
-    ef_electricity: number;
-    source_of_ef_electricity: string;
-    exported_electricity_value: number | null;
-    ef_exported_electricity: number | null;
-    total_production_amounts: number;
-    produced_for_market_amount: number;
-    imported_wgases_amount: number;
-    ef_imported_wgases: number;
-    exported_wgases_amount: number;
-    ef_exported_wgases: number;
-  };
-  onChange: (data: GoodsFormProps["data"]) => void;
+interface VerifierFormProps {
   redirectPath?: string;
 }
 
 const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/" }) => {
   const navigate = useNavigate();
 
-  const [formValues, set] = useState({
+  const [formValues, setFormValues] = useState({
     installation: "",
     economic_activity: "",
     address: "",
@@ -83,27 +47,18 @@ const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/
     industry_type: "",
     goods_category: "",
     precursors: [] as string[],
-    amounts: {} as { [key: number]: string },
+    amounts: {} as { [key: number]: string }, // Add this line to match FormValues
     route: "",
-    routes: [] as string[],
+    routes: [] as string[], // Add this line to match FormValues interface
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-  const [activeStep, setActiveStep] = useState(1);
-  const [countries, setCountries] = useState<CountryOption[]>([]);
 
-  useEffect(() => {
-    const loadCountries = async () => {
-      const fetched = await fetchCountries();
-      setCountries(fetched);
-    };
-    loadCountries();
-  }, []);
-
-
+  const [activeStep, setActiveStep] = useState(1); // เริ่มต้นที่ Section 1 เท่านั้น
 
   const handleFirstSubmit = () => {
     const requiredFieldsSection1 = ["installation", "economic_activity"];
+
     const newErrors: { [key: string]: string } = {};
     requiredFieldsSection1.forEach((field) => {
       if (!formValues[field as keyof typeof formValues]) {
@@ -116,18 +71,51 @@ const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/
       return;
     }
 
-    setActiveStep(2);
+    setActiveStep(2); // ✅ เปิด Section 2
   };
 
+  // Handle form field changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     set((prev) => ({ ...prev, [name]: value }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
+  const [countries, setCountries] = useState<CountryOption[]>([]);
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      const fetched = await fetchCountries();
+      setCountries(fetched);
+
+      const defaultThailand = fetched.find(
+        (c: CountryOption) => c.label === "Thailand"
+      );
+
+    };
+    loadCountries();
+  }, []);
+  //   const [formValues, setFormValues] = useState(initialValues);
+  // const [formErrors, setFormErrors] = useState({});
+  //   const [submittedSections, setSubmittedSections] = useState({
+  //     section1: false,
+  //     section2: false,
+  //   });
+
+  const validateSection1 = () => {
+    const errors: any = {};
+    if (!formValues.industry_type) errors.industry_type = "Required";
+    if (!formValues.address) errors.address = "Required";
+    if (!formValues.post_code) errors.post_code = "Required";
+    if (!formValues.country) errors.country = "Required";
+
+    setFormErrors((prev) => ({ ...prev, ...errors }));
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const requiredFields = [
       "report_id",
       "name",
@@ -165,36 +153,22 @@ const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/
       "exported_wgases_amount",
       "ef_exported_wgases"
     ];
-
     const newErrors: { [key: string]: string } = {};
     requiredFields.forEach((field) => {
       if (data[field as keyof typeof data] === undefined || data[field as keyof typeof data] === null) {
         newErrors[field] = "กรุณากรอกข้อมูล";
       }
     });
-
     if (Object.keys(newErrors).length > 0) {
       setFormErrors(newErrors);
       const firstErrorField = Object.keys(newErrors)[0];
       const errorElement = document.getElementsByName(firstErrorField)[0];
-      if (errorElement)
-        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (errorElement) errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/cbam/d_goods", data);
-      const insertedId = res.data?.insertId || res.data?.id;
-
-      if (insertedId) {
-        const getRes = await axios.get(`http://localhost:5000/api/cbam/installation/${insertedId}`);
-        console.log("✅ ข้อมูลที่เพิ่งบันทึก:", getRes.data);
-      }
-
-      navigate(redirectPath);
-    } catch (err: any) {
-      console.error("❌ เกิดข้อผิดพลาดระหว่างส่งข้อมูล:", err.response?.data || err.message);
-    }
+    // console.log('✅ Submitted:', formValues);
+    navigate(redirectPath);
   };
 
   return (
@@ -209,16 +183,26 @@ const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/
           </Typography>
         </Box>
 
+        {/* SECTION 1 */}
         <Section1
           values={formValues}
           errors={formErrors}
           onChange={(field, val) => {
-            set((prev) => ({ ...prev, [field]: val }));
+            setFormValues((prev) => ({ ...prev, [field]: val }));
             setFormErrors((prev) => ({ ...prev, [field]: "" }));
           }}
           onNext={handleFirstSubmit}
         />
 
+        {/* SECTION 2 */}
+        {/* {activeStep >= 2 && (
+            <Section2
+              values={formValues}
+              errors={formErrors}
+              onChange={handleInputChange}
+              onNext={() => setActiveStep(3)}
+            />
+          )} */}
         <Section2
           values={formValues}
           errors={formErrors}
@@ -226,21 +210,27 @@ const GoodsForm: React.FC<GoodsFormProps> = ({ data, onChange, redirectPath = "/
           onNext={() => setActiveStep(3)}
         />
 
+        {/* SECTION 3 */}
+        {/* {activeStep >= 3 && (
+            <Section3
+              values={formValues}
+              errors={formErrors}
+              onChange={handleInputChange}
+              onNext={() => setActiveStep(4)}
+              setValues={setFormValues}
+              countries={countries}
+            />
+          )} */}
         <Section3
           values={formValues}
           errors={formErrors}
           onChange={handleInputChange}
           onNext={() => setActiveStep(4)}
-          setValues={set}
+          setValues={setFormValues}
           countries={countries}
         />
-
-        <PGButton />
       </Grid>
-
-      {/* <Box mt={4} textAlign="center">
-        <PGButton onClick={handleSubmit}>บันทึกและส่งข้อมูล</PGButton>
-      </Box> */}
+      {/* </form> */}
     </Container>
   );
 };

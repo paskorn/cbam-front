@@ -108,6 +108,7 @@ const AmountForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
           <Section
             title="(c) Specific embedded emissions"
             subtitle="ปริมาณการปล่อยก๊าซเรือนกระจก"
+            defaultExpanded={true}
             hasError={
               !!formErrors.auth_rep ||
               !!formErrors.email ||
