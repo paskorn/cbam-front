@@ -166,7 +166,7 @@ const GoodsForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
           />
         {/* // )} */}
         {/* SECTION 3 */}
-        {activeStep === 3 && (
+        {/* {activeStep === 3 && ( */}
           <Section3
             values={formValues}
             errors={formErrors}
@@ -175,7 +175,7 @@ const GoodsForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
             setValues={setFormValues}
             countries={countries}
           />
-        )}
+        {/* )} */}
       </Grid>
     </Container>
   );
