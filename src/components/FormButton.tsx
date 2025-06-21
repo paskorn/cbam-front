@@ -21,13 +21,17 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
 }));
 
 // ✅ ปรับให้รับ props แบบปุ่มปกติ
-const PGButton = ({ children, ...props }: React.ComponentProps<typeof Button>) => {
-  return (
-    <PaleGreenButton {...props}>
-      {props.startIcon ?? <SaveIcon />}
-      {children}
-    </PaleGreenButton>
-  );
+// const PGButton = ({ children, ...props }: React.ComponentProps<typeof Button>) => {
+//   return (
+//     <PaleGreenButton {...props}>
+//       {props.startIcon ?? <SaveIcon />}
+//       {children}
+//     </PaleGreenButton>
+//   );
+// };
+
+const PGButton = () => {
+  return <PaleGreenButton type="submit" startIcon={<SaveIcon />} >save</PaleGreenButton>;
 };
 
 export default PGButton;
