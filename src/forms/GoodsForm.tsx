@@ -47,6 +47,11 @@ const GoodsForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
     nat_accre: "",
     reg_num: "",
     industry_type: "",
+    goods_category: "",
+    precursors: [] as string[],
+    amounts: {} as { [key: number]: string }, // Add this line to match FormValues
+    route: "",
+    routes: [] as string[], // Add this line to match FormValues interface
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});

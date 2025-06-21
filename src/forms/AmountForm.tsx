@@ -103,42 +103,8 @@ const AmountForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
             รายะเอียดของวัตถุดิบที่ซื้อเข้ามาใช้ในกระบวนการผลิต
           </Typography>
           </Box>
-          {/* SECTION 1:Amount of purchased precursors*/}
-          <Section
-            defaultExpanded={true}
-            title="(b) Amount of purchased precursors"
-            subtitle="ปริมาณการสั่งซื้อวัตถุดิบ"
-            hasError={
-              !!formErrors.installation ||
-              !!formErrors.address ||
-              !!formErrors.post_code ||
-              !!formErrors.country
-            }
-          >
-            <LabeledTextField
-              type="number"
-              caption="Consumed in 'production processes' within the installation"
-              defination="กรอกข้อมูลของวัตถุดิบที่ใช้ในการผลิตของผลิตภัณฑ์ CBAM"
-              label=""
-              name="installation"
-              value={formValues.installation}
-              onChange={handleInputChange}
-              error={formErrors.installation}
-            />
-
-            <LabeledTextField
-              type="number"
-              caption="Consumed for other purposes, e.g. sold or used for non-CBAM goods"
-              defination="กรอกข้อมูลของวัตถุดิบที่ใช้ในการผลิตของผลิตภัณฑ์ที่ไม่ใช่ CBAM"
-              label=""
-              name="address"
-              value={formValues.address}
-              onChange={handleInputChange}
-              error={formErrors.address}
-            />
-          </Section>
-
-          {/* SECTION 2: Specific embedded emissions*/}
+          
+          {/* SECTION 1: Specific embedded emissions*/}
           <Section
             title="(c) Specific embedded emissions"
             subtitle="ปริมาณการปล่อยก๊าซเรือนกระจก"

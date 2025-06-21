@@ -13,6 +13,9 @@ interface Props {
   type?: string;
   helperText?: string;
   defination?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  multiple?: boolean;
 }
 
 const LabeledAutocomplete: React.FC<Props> = ({
@@ -25,6 +28,8 @@ const LabeledAutocomplete: React.FC<Props> = ({
   name,
   helperText,
   defination,
+  disabled = false,
+  readonly = false,
   type = "text",
 }) => (
   <>
@@ -55,6 +60,11 @@ const LabeledAutocomplete: React.FC<Props> = ({
           margin="normal"
           error={!!error}
           helperText={helperText}
+          disabled={disabled}
+          InputProps={{
+            ...params.InputProps,
+            readOnly: readonly
+          }}
         />
       )}
       fullWidth

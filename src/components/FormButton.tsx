@@ -1,4 +1,3 @@
-// MyButton.tsx
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
@@ -8,7 +7,7 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
   width: '150px',
   height: '50px',
   fontSize: '18px',
-  backgroundColor: '#a5d6a7', // pale green
+  backgroundColor: '#a5d6a7',
   color: '#fff',
   marginLeft: 'auto',
   borderRadius: '20px',
@@ -16,14 +15,19 @@ const PaleGreenButton = styled(Button)(({ theme }) => ({
     backgroundColor: '#81c784',
   },
   [theme.breakpoints.down('sm')]: {
-    // width: '100%',
     height: '50px',
     fontSize: '10px',
   },
 }));
 
-const PGButton = () => {
-  return <PaleGreenButton type="submit" startIcon={<SaveIcon />} >save</PaleGreenButton>;
+// ✅ ปรับให้รับ props แบบปุ่มปกติ
+const PGButton = ({ children, ...props }: React.ComponentProps<typeof Button>) => {
+  return (
+    <PaleGreenButton {...props}>
+      {props.startIcon ?? <SaveIcon />}
+      {children}
+    </PaleGreenButton>
+  );
 };
 
 export default PGButton;

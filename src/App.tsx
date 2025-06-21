@@ -171,7 +171,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Im
 import Header from './components/Header'; // Import the Header component
 import Dashboard from './pages/Dashboard';
 import NavigationProp from './components/NavigationProp';
-import Form from './pages/Form'; // Import the Form page
+// import Form from './pages/Form'; // Import the Form page
+import Form from './pages/Formdev'; // Import the Form page
 
 const theme = createTheme({
   typography: {
@@ -216,6 +217,8 @@ function App() {
                 <Route path="/Goods" element={<Goods/>} />  */}
                 <Route path="/Home" element={<Dashboard/>} />  
                 <Route path="/Form" element={<Form/>} />  
+                <Route path="/Formdev" element={<Form/>} />  
+
                 <Route path="/Report" element={<Dashboard/>} />  
               
 

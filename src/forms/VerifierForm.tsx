@@ -1,24 +1,22 @@
-import React, { useState,useEffect } from "react";
-import { Container, Grid } from "@mui/material";
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+import { Container, Grid, Box, Typography } from "@mui/material";
 import Section from "../components/Section";
 import PGButton from "../components/FormButton";
-import { useNavigate } from "react-router-dom";
-import LabeledAutocomplete from "../components/LabeledAutoComplete";
+import LabeledAutocompleteMap from "../components/LabeledAutoCompleteMap";
 import LabeledTextField from "../components/LabeledTextField";
-// import { countries } from "../components/dropdown/goods";
+import { useNavigate } from "react-router-dom";
 import {
   fetchCountries,
   CountryOption,
 } from "../components/dropdown/contriesmap";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import LabeledAutocompleteMap from "../components/LabeledAutoCompleteMap";
+import LabeledAutocomplete from "../components/LabeledAutoComplete";
 
-interface VerifierFormProps {
-  redirectPath?: string;
-}
-
-const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
+const VerifierForm = forwardRef((props, ref) => {
   const navigate = useNavigate();
 
   const [formValues, setFormValues] = useState({
@@ -31,7 +29,6 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
     accreditation_state: "",
     accreditation_national_body: "",
     registration_no: "",
-
     name: "",
     email: "",
     phone: "",
@@ -39,27 +36,22 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
   });
 
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
-
   const [countries, setCountries] = useState<CountryOption[]>([]);
-  
-    useEffect(() => {
-      const loadCountries = async () => {
-        const fetched = await fetchCountries();
-        setCountries(fetched);
-  
-        const defaultThailand = fetched.find(
-          (c: CountryOption) => c.label === "Thailand"
-        );
-        if (defaultThailand) {
-          setFormValues((prev) => ({
-            ...prev,
-            country_id: String(defaultThailand.value),
-            unlocode: String(defaultThailand.abbreviation),
-          }));
-        }
-      };
-      loadCountries();
-    }, []);
+
+  useEffect(() => {
+    const loadCountries = async () => {
+      const fetched = await fetchCountries();
+      setCountries(fetched);
+      const defaultThailand = fetched.find((c) => c.label === "Thailand");
+      if (defaultThailand) {
+        setFormValues((prev) => ({
+          ...prev,
+          country_id: String(defaultThailand.value),
+        }));
+      }
+    };
+    loadCountries();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,103 +66,104 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
 
   const handleSubmitSection1And3 = async () => {
     const payload = {
-      installation: formValues.installation_name,
+      installation_name: formValues.installation_name,
       address: formValues.address,
       city: formValues.city,
-      country: formValues.country_id,
+      country_id: formValues.country_id,
       post_code: formValues.post_code,
-      auth_rep: formValues.authorized_rep_id,
-      accre_mem_state: formValues.accreditation_state,
-      nat_accre: formValues.accreditation_national_body,
-      reg_num: formValues.registration_no,
+      authorized_rep_id: formValues.authorized_rep_id,
+      accreditation_state: formValues.accreditation_state,
+     accreditation_national_body: formValues.accreditation_national_body,
+      registration_no: formValues.registration_no,
     };
 
-    try {
-      const response = await fetch("/api/verifier", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+    const response = await fetch("/api/verifier", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      if (!response.ok) throw new Error("Section 1 & 3 submission failed");
-      console.log("✅ Section 1 & 3 submitted successfully");
-    } catch (error) {
-      console.error(error);
-    }
+    if (!response.ok) throw new Error("Section 1 & 3 submission failed");
+    console.log("✅ Section 1 & 3 submitted");
   };
 
   const handleSubmitSection2 = async () => {
     const payload = {
-      name: formValues.name,
       email: formValues.email,
-      tel: formValues.phone,
+      phone: formValues.phone,
       fax: formValues.fax,
     };
 
-    try {
-      const response = await fetch("/api/authorized_representatives", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) throw new Error("Section 2 submission failed");
-      console.log("✅ Section 2 submitted successfully");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const requiredFields = [
-      "installation",
-      "address",
-      "post_code",
-      "country",
-      "auth_rep",
-      "email",
-      "tel",
-      "fax",
-      "accre_mem_state",
-      "nat_accre",
-      "reg_num",
-    ];
-
-    const newErrors: { [key: string]: string } = {};
-
-    requiredFields.forEach((field) => {
-      if (!formValues[field as keyof typeof formValues]) {
-        newErrors[field] = "กรุณากรอกข้อมูล";
-      }
+    const response = await fetch("/api/authorized_representatives", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    if (Object.keys(newErrors).length > 0) {
-      setFormErrors(newErrors);
-      const firstErrorField = Object.keys(newErrors)[0];
-      const errorElement = document.getElementsByName(firstErrorField)[0];
-      if (errorElement)
-        errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    await handleSubmitSection1And3();
-    await handleSubmitSection2();
-
-    navigate(redirectPath);
+    if (!response.ok) throw new Error("Section 2 submission failed");
+    console.log("✅ Section 2 submitted");
   };
+
+  useImperativeHandle(ref, () => ({
+    async submit() {
+      const requiredFields = [
+        "installation_name",
+        "address",
+        "post_code",
+        "country_id",
+        "authorized_rep_id",
+        "accreditation_state",
+        "accreditation_national_body",
+        "registration_no",
+        "name",
+        "email",
+        "phone",
+        "fax",
+      ];
+
+      const newErrors: { [key: string]: string } = {};
+
+      requiredFields.forEach((field) => {
+        if (!formValues[field as keyof typeof formValues]) {
+          newErrors[field] = "กรุณากรอกข้อมูล";
+        }
+      });
+
+      if (Object.keys(newErrors).length > 0) {
+        setFormErrors(newErrors);
+        const firstErrorField = Object.keys(newErrors)[0];
+        const errorElement = document.getElementsByName(firstErrorField)[0];
+        if (errorElement)
+          errorElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        return false;
+      }
+
+      try {
+        await handleSubmitSection1And3();
+        await handleSubmitSection2();
+        return true;
+      } catch (err) {
+        console.error(err);
+        return false;
+      }
+    },
+  }));
 
   return (
     <Container
       maxWidth="md"
       style={{ paddingTop: "2rem", paddingBottom: "2rem" }}
     >
-      <form onSubmit={handleSubmit}>
+      <form>
         <Grid container spacing={3} alignItems="stretch">
           <Box>
-            <Typography variant="h5" fontWeight="bold" gutterBottom color="#1976d2">
-              Verifier of the report 
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              gutterBottom
+              color="#1976d2"
+            >
+              Verifier of the report
             </Typography>
             <Typography variant="subtitle1" color="text.secondary" gutterBottom>
               only if available and not required during transitional period
@@ -193,7 +186,7 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               caption="Name of the installation"
               defination="ชื่อบริษัทผู้ทวนสอบ"
               label=""
-              name="installation"
+              name="installation_name"
               value={formValues.installation_name}
               onChange={handleInputChange}
               error={formErrors.installation}
@@ -222,28 +215,28 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
             />
 
             <LabeledAutocompleteMap
-                  caption="Country"
-                  defination="เลือกประเทศที่สถานประกอบการตั้งอยู่ (Country)"
-                  label=""
-                  options={countries.map((c) => ({
-                    ...c,
-                    value: String(c.value), // 🔥 cast value เป็น string
-                  }))}
-                  value={formValues.country_id}
-                  name="country_id"
-                  onChange={(val: string | number) => {
-                    const valStr = String(val);
-                    const selected = countries.find(
-                      (c) => String(c.value) === valStr
-                    ); // 🔥 compare string
-                    setFormValues((prev) => ({
-                      ...prev,
-                      country_id: valStr,
-                      unlocode: selected?.abbreviation || "",
-                    }));
-                  }}
-                  error={formErrors.country_id}
-                />
+              caption="Country"
+              defination="เลือกประเทศที่สถานประกอบการตั้งอยู่ (Country)"
+              label=""
+              options={countries.map((c) => ({
+                ...c,
+                value: String(c.value), // 🔥 cast value เป็น string
+              }))}
+              value={formValues.country_id}
+              name="country_id"
+              onChange={(val: string | number) => {
+                const valStr = String(val);
+                const selected = countries.find(
+                  (c) => String(c.value) === valStr
+                ); // 🔥 compare string
+                setFormValues((prev) => ({
+                  ...prev,
+                  country_id: valStr,
+                  unlocode: selected?.abbreviation || "",
+                }));
+              }}
+              error={formErrors.country_id}
+            />
           </Section>
 
           {/* SECTION 2: Authorized Representative */}
@@ -261,8 +254,8 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               type="text"
               caption="Name"
               defination="ชื่อ-นามสกุลของตัวแทน"
-              label="Name"
-              name="auth_rep"
+              label=""
+              name="authorized_rep_id"
               value={formValues.authorized_rep_id}
               onChange={handleInputChange}
               error={formErrors.authorized_rep_id}
@@ -284,10 +277,10 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               caption="Telephone number"
               defination="เบอร์โทร"
               label=""
-              name="tel"
+              name="phone"
               value={formValues.phone}
               onChange={handleInputChange}
-              error={formErrors.tel}
+              error={formErrors.phone}
             />
             <LabeledTextField
               type="number"
@@ -306,29 +299,36 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
             title="Information about the verifier's accreditation"
             subtitle="การรับรองคุณสมบัติของผู้ทวนสอบ"
             hasError={
-              !!formErrors.accre_mem_state ||
-              !!formErrors.nat_accre ||
-              !!formErrors.reg_num
+              !!formErrors.accrediation_state ||
+              !!formErrors.accreditation_national_body ||
+              !!formErrors.registration_no
             }
           >
-            <LabeledAutocomplete
+            <LabeledAutocompleteMap
               caption="Accreditation Member State"
               defination="เลือกประเทศ"
               label=""
-              name="accre_mem_state"
-              error={formErrors.accre_mem_state}
-              options={countries.map((c) => c.label)}
-              value={formValues.accreditation_state}
-              onChange={(val) =>
-                handleAutocompleteChange("accre_mem_state", val)
-              }
+              options={countries.map((c) => ({
+                ...c,
+                value: String(c.value), // 🔥 cast value เป็น string
+              }))}
+              value={formValues.country_id}
+              name="accrediation_state"
+              onChange={(val: string | number) => {
+                const valStr = String(val);
+                const selected = countries.find(
+                  (c) => String(c.value) === valStr
+                ); // 🔥 compare string
+              }}
+              error={formErrors.accreditation_state}
             />
+            
             <LabeledTextField
               type="text"
               caption="National Accreditation Body"
               defination="ชื่อหน่วยงานมาฐานแห่งชาติที่ให้การรับรองผู้ทวนสอบ"
               label=""
-              name="nat_accre"
+              name="accreditation_national_body"
               value={formValues.accreditation_national_body}
               onChange={handleInputChange}
               error={formErrors.accreditation_national_body}
@@ -338,7 +338,7 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
               caption="Registration Number"
               defination="หมายเลขทะเบียนที่หน่วยงานรับรองออกให้"
               label=""
-              name="reg_num"
+              name="registration_no"
               value={formValues.registration_no}
               onChange={handleInputChange}
               error={formErrors.registration_no}
@@ -350,6 +350,6 @@ const VerifierForm: React.FC<VerifierFormProps> = ({ redirectPath = "/" }) => {
       </form>
     </Container>
   );
-};
+});
 
 export default VerifierForm;

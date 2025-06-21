@@ -16,6 +16,9 @@ interface Props {
   error?: string;
   type?: string;
   defination?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  multiple?: boolean;
 }
 
 const LabeledAutocompleteMap: React.FC<Props> = ({
@@ -28,6 +31,9 @@ const LabeledAutocompleteMap: React.FC<Props> = ({
   name,
   defination,
   type = "text",
+  disabled = false,
+  readonly = false,
+  multiple = false,
 }) => {
   // This maps the current value (e.g. 'TH') back to the option object
   const selectedOption = options.find((opt) => opt.value === value) || null;
@@ -68,6 +74,11 @@ const LabeledAutocompleteMap: React.FC<Props> = ({
             fullWidth
             error={!!error}
             helperText={error || " "}
+            disabled={disabled}
+            InputProps={{
+              ...params.InputProps,
+              readOnly: readonly,
+            }}
           />
         )}
       />

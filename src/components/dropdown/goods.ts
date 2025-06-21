@@ -1,5 +1,5 @@
 export interface Goods {
-  id: number;
+  goods_id: number;
   name: string;
   routes: string[];
   relevant_precursors: string[];
@@ -62,7 +62,7 @@ export const getGoodsOptions = (
 ): OptionType[] => {
   const group = data.find((g) => g.industry_type_id === industryId);
   return group
-    ? group.goods.map((g) => ({ label: g.name, value: g.id }))
+    ? group.goods.map((g) => ({ label: g.name, value: g.goods_id }))
     : [];
 };
 
@@ -74,9 +74,23 @@ export const getRoutesOptions = (
   goodsId: number
 ): OptionType[] => {
   const group = data.find((g) => g.industry_type_id === industryId);
-  const goods = group?.goods.find((g) => g.id === goodsId);
+  const goods = group?.goods.find((g) => g.goods_id === goodsId);
   return goods?.routes.map((r) => ({ label: r, value: r })) || [];
 };
+
+export const getPrecursorsOptions = (
+  data: IndustryGroup[],
+  industryTypeId: number,
+  goodsId: number
+): OptionType[] => {
+  const industry = data.find((g) => g.industry_type_id === industryTypeId);
+  const goods = industry?.goods.find((item) => item.goods_id === goodsId);
+  return goods?.relevant_precursors.map((p) => ({
+    label: p,
+    value: p,
+  })) || [];
+};
+
 
 async function debug() {
   const data = await fetchGoodsData();
