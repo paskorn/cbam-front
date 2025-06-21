@@ -173,6 +173,7 @@ import Dashboard from './pages/Dashboard';
 import NavigationProp from './components/NavigationProp';
 // import Form from './pages/Form'; // Import the Form page
 import Form from './pages/Formdev'; // Import the Form page
+import Report from './pages/Report';
 
 
 const theme = createTheme({
@@ -219,7 +220,7 @@ function App() {
                 <Route path="/Home" element={<Dashboard/>} />  
                 <Route path="/Form" element={<Form/>} />  
                 <Route path="/Formdev" element={<Form/>} />  
-                <Route path="/Report" element={<Dashboard/>} />  
+                <Route path="/Report" element={<Report/>} />  
               
 
 

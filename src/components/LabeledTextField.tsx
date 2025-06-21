@@ -12,7 +12,8 @@ interface Props {
   error?: string;
   readOnly?: boolean;
   helperText?: string;
-  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; // add this line
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; 
+  required?: boolean
 }
 
 const LabeledTextField: React.FC<Props> = ({
@@ -26,7 +27,8 @@ const LabeledTextField: React.FC<Props> = ({
   error,
   type = "text",
   readOnly = false,
-  inputProps, // add here
+  inputProps, 
+  required = true
 }) => (
   <>
     {caption && (

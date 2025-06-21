@@ -255,6 +255,9 @@ const SourceForm = forwardRef<SourceFormRef>((props, ref) => {
         m_biomass_content: formValues.m_biomass_content,
         m_co2e_fossil: formValues.m_co2e_fossil,
         m_energy_content_fossil: formValues.m_energy_content_fossil,
+
+        generalinfo: formValues.general_info,
+        
       };
 
       try {
