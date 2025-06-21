@@ -17,10 +17,10 @@ interface Props {
     consumed_non_cbam_goods?: string;
   };
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNext: () => void;
+  // onNext: () => void;
 }
-
-const Section2: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
+const Section2: React.FC<Props> = ({ values, errors, onChange }) => {
+  // const Section2: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
 
   const handleSectionSubmit = () => {
     const validationErrors: { [key: string]: string } = {};
@@ -37,12 +37,12 @@ const Section2: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
     if (!values.produced_for_market) {
       validationErrors.produced_for_market = "กรุณากรอกปริมาณการผลิตเพื่อจำหน่าย"; // Required
     } else if (isNaN(Number(values.produced_for_market)) || Number(values.produced_for_market) < 0) {
-      validationErrors.produced_for_market = "กรุณากรอกจำนวนที่ถูกต้อง"; 
+      validationErrors.produced_for_market = "กรุณากรอกจำนวนที่ถูกต้อง";
     }
     if (!values.consumed_non_cbam_goods) {
       validationErrors.consumed_non_cbam_goods = "กรุณากรอกปริมาณการใช้ของสินค้าที่ไม่อยู่ภายใต้ CBAM"; // Required
     } else if (isNaN(Number(values.consumed_non_cbam_goods)) || Number(values.consumed_non_cbam_goods) < 0) {
-      validationErrors.consumed_non_cbam_goods = "กรุณากรอกจำนวนที่ถูกต้อง"; 
+      validationErrors.consumed_non_cbam_goods = "กรุณากรอกจำนวนที่ถูกต้อง";
     }
 
     // If errors are present, set state and exit
@@ -127,9 +127,9 @@ const Section2: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
           />
         </div>
       </div>
-      <div style={{ display: "flex", justifyContent: "right" }}>
-        <SectionButton onValidate={handleSectionSubmit} onSuccess={onNext} /> 
-      </div>
+      {/* <div style={{ display: "flex", justifyContent: "right" }}>
+        <SectionButton onValidate={handleSectionSubmit} onSuccess={onNext} />
+      </div> */}
     </Section>
   );
 };

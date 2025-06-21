@@ -32,10 +32,11 @@ interface Props {
     field: string,
     value: string | string[] | { [key: number]: string }
   ) => void;
-  onNext: () => void;
+  // onNext: () => void;
 }
 
-const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
+// const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
+const Section1: React.FC<Props> = ({ values, errors, onChange }) => {
   const [goodsData, setGoodsData] = useState<IndustryGroup[]>([]);
   const [industryOptions, setIndustryOptions] = useState<OptionType[]>([]);
   const [goodsOptions, setGoodsOptions] = useState<OptionType[]>([]);
@@ -88,46 +89,67 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
   }, [values.routes]);
 
   // Handle submission for the section
-  const handleSectionSubmit = () => {
-    const validationErrors: FormErrors = {};
-    if (!values.industry_type) {
-      validationErrors.industry_type = "กรุณากรอกข้อมูล";
-    }
-    if (!values.goods_category) {
-      validationErrors.goods_category = "กรุณากรอกข้อมูล";
-    }
-    if (!values.routes || values.routes.length === 0) {
-      validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
-    }
-    
-    // If validation fails, log errors and exit
-    if (Object.keys(validationErrors).length > 0) {
-      console.log("Validation errors:", validationErrors);
-      return;
-    }
+  // const handleSectionSubmit = () => {
+  //   const validationErrors: FormErrors = {};
+  //   if (!values.industry_type) {
+  //     validationErrors.industry_type = "กรุณากรอกข้อมูล";
+  //   }
+  //   if (!values.goods_category) {
+  //     validationErrors.goods_category = "กรุณากรอกข้อมูล";
+  //   }
+  //   if (!values.routes || values.routes.length === 0) {
+  //     validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
+  //   }
 
-    // Save data to local storage
-    localStorage.setItem("precursorData", JSON.stringify({
-      routes: values.routes || [],
-      amounts: values.amounts || {},
-      industry_type: values.industry_type,
-      goods_category: values.goods_category,
-      precursors: values.routes.map((r) => {
-        const found = routesOptions.find((opt) => String(opt.value) === r);
-        return found?.label || r;
-      }),
-    }));
+  //   // If validation fails, log errors and exit
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     console.log("Validation errors:", validationErrors);
+  //     return;
+  //   }
 
-    console.log("Section 1 data saved:", {
-      routes: values.routes,
-      amounts: values.amounts,
-      industry_type: values.industry_type,
-      goods_category: values.goods_category,
-    });
+  //   // Save data to local storage
+  //   localStorage.setItem("precursorData", JSON.stringify({
+  //     routes: values.routes || [],
+  //     amounts: values.amounts || {},
+  //     industry_type: values.industry_type,
+  //     goods_category: values.goods_category,
+  //     precursors: values.routes.map((r) => {
+  //       const found = routesOptions.find((opt) => String(opt.value) === r);
+  //       return found?.label || r;
+  //     }),
+  //   }));
 
-    // Call onNext to navigate to the next section
-    onNext();
-  };
+  //   console.log("Section 1 data saved:", {
+  //     routes: values.routes,
+  //     amounts: values.amounts,
+  //     industry_type: values.industry_type,
+  //     goods_category: values.goods_category,
+  //   });
+
+  //   // Call onNext to navigate to the next section
+  //   // onNext();
+  // };
+
+  // const handleSectionSubmit = (): boolean => {
+  //   const validationErrors: FormErrors = {};
+
+  //   if (!values.industry_type) {
+  //     validationErrors.industry_type = "กรุณากรอกข้อมูล";
+  //   }
+  //   if (!values.goods_category) {
+  //     validationErrors.goods_category = "กรุณากรอกข้อมูล";
+  //   }
+  //   if (!values.routes || values.routes.length === 0) {
+  //     validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
+  //   }
+
+  //   if (Object.keys(validationErrors).length > 0) {
+  //     console.log("Validation errors:", validationErrors);
+  //     return false;
+  //   }
+
+  //   return true;
+  // };
 
   return (
     <Section
@@ -264,18 +286,7 @@ const Section1: React.FC<Props> = ({ values, errors, onChange, onNext }) => {
 
         {/* Section Button for transitioning to the next step */}
         <div style={{ display: "flex", justifyContent: "right" }}>
-          <SectionButton
-            onValidate={() => {
-              const validationErrors: FormErrors = {};
-              if (!values.industry_type) validationErrors.industry_type = "กรุณากรอกข้อมูล";
-              if (!values.goods_category) validationErrors.goods_category = "กรุณากรอกข้อมูล";
-              if (!values.routes || values.routes.length === 0) validationErrors.routes = "กรุณาเลือกวัตถุดิบที่เกี่ยวข้อง";
-              return Object.keys(validationErrors).length === 0;
-            }}
-            onSuccess={handleSectionSubmit} // Now it directly calls handleSectionSubmit
-          >
-            Next
-          </SectionButton>
+
         </div>
       </div>
     </Section>

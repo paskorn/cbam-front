@@ -56,7 +56,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
   useEffect(() => {
     const fetchIndustryTypes = async () => {
       try {
-        const res = await fetch("http://178.128.123.212:5000/api/cbam/industry_types");
+        const res = await fetch("http://localhost:5000/api/cbam/industry_types");
         const data = await res.json();
         setIndustryTypes(data);
       } catch (err) {
@@ -92,6 +92,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
       industry_type_id: Number(formValues.industry_id),
       goods_id: Number(formValues.goods_id),
       cn_id: Number(formValues.cn_id),
+      company_id: 1,
     };
     // console.log("Form values before submit:", formValues);
     // console.log("Payload:", payload);
@@ -103,7 +104,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
 
 
     try {
-      const res = await fetch("http://178.128.123.212:5000/api/cbam/report", {
+      const res = await fetch("http://localhost:5000/api/cbam/report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -135,7 +136,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
 
     const fetchReport = async () => {
       try {
-        const res = await fetch(`http://178.128.123.212:5000/api/cbam/report/${reportId}`);
+        const res = await fetch(`http://localhost:5000/api/cbam/report/${reportId}`);
         if (!res.ok) {
           throw new Error(`Error fetching report ${reportId}: ${res.statusText}`);
         }
@@ -154,12 +155,12 @@ const SumupForm: React.FC<InstallationFormProps> = ({
         setInstallationName(data.installation_name?.trim() || "");
 
         // Fetch goods list for dropdown
-        const goodsRes = await fetch(`http://178.128.123.212:5000/api/cbam/goods/${data.industry_type_id}`);
+        const goodsRes = await fetch(`http://localhost:5000/api/cbam/goods/${data.industry_type_id}`);
         const goodsData = await goodsRes.json();
         setGoodsList(goodsData);
 
         // Fetch cncode list for dropdown
-        const cnRes = await fetch(`http://178.128.123.212:5000/api/cbam/cncodes/${data.goods_id}`);
+        const cnRes = await fetch(`http://localhost:5000/api/cbam/cncodes/${data.goods_id}`);
         const cnData = await cnRes.json();
         setCncodeList(cnData);
 
@@ -228,7 +229,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
                   setSelectedCncode(null);
 
                   try {
-                    const res = await fetch(`http://178.128.123.212:5000/api/cbam/goods/${val}`);
+                    const res = await fetch(`http://localhost:5000/api/cbam/goods/${val}`);
                     const data = await res.json();
                     setGoodsList(data);
                   } catch (err) {
@@ -259,7 +260,7 @@ const SumupForm: React.FC<InstallationFormProps> = ({
                   setSelectedCncode(null);
 
                   try {
-                    const res = await fetch(`http://178.128.123.212:5000/api/cbam/cncodes/${val}`);
+                    const res = await fetch(`http://localhost:5000/api/cbam/cncodes/${val}`);
                     const data = await res.json();
                     setCncodeList(data);
                   } catch (err) {

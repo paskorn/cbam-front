@@ -1,5 +1,6 @@
 // forms/Section3.tsx
-import React from "react";
+// import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import Section from "../../components/Section";
 import LabeledTextField from "../../components/LabeledTextField";
@@ -12,7 +13,7 @@ interface Props {
   values: any;
   errors: any;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onNext: () => void;
+  // onNext: () => void;
   setValues: React.Dispatch<React.SetStateAction<any>>;
   countries: any[]; // options for autocomplete
 }
@@ -21,10 +22,28 @@ const Section3: React.FC<Props> = ({
   values,
   errors,
   onChange,
-  onNext,
+  // onNext,
   setValues,
   countries,
 }) => {
+  const [electricitySources, setElectricitySources] = useState<
+    { id: number; name: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchElectricitySources = async () => {
+      try {
+        const res = await fetch("http://178.128.123.212:5000/api/cbam/srcefelectricitys");
+        const name = await res.json();
+        setElectricitySources(name);
+      } catch (error) {
+        console.error("โหลดข้อมูลแหล่ง EF ไฟฟ้าไม่สำเร็จ:", error);
+      }
+    };
+
+    fetchElectricitySources();
+  }, []);
+
   return (
     <Section
       title="(c) Calculation of the attributed emissions"
@@ -221,7 +240,7 @@ const Section3: React.FC<Props> = ({
               defination="เลือกแหล่งที่มาของค่า Emission factor ของไฟฟ้า"
               label=""
               name="electricity_source"
-              options={countries}
+              options={electricitySources.map((item) => item.name)}
               value={values.electricity_source}
               error={errors.electricity_source}
               onChange={(val) =>
@@ -269,9 +288,9 @@ const Section3: React.FC<Props> = ({
         </div>
       </Box>
 
-      <div style={{ display: "flex", justifyContent: "right" }}>
+      {/* <div style={{ display: "flex", justifyContent: "right" }}>
         <SectionButton onValidate={() => true} onSuccess={onNext} />
-      </div>
+      </div> */}
     </Section>
   );
 };
